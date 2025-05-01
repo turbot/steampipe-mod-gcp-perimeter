@@ -1,4 +1,4 @@
-# GCP Perimeter Security Mod for Powerpipe
+# GCP Perimeter Mod for Powerpipe
 
 A collection of benchmarks and controls to analyze the perimeter security of your Google Cloud Platform resources. This mod helps you ensure that your GCP resources are not unnecessarily exposed to the public internet and that resource sharing is limited to trusted entities.
 
