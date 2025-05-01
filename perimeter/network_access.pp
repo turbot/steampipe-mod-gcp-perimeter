@@ -1,0 +1,134 @@
+benchmark "network_access" {
+  title         = "Network Access"
+  description   = "Network configurations should follow security best practices to prevent unauthorized access."
+  documentation = file("./perimeter/docs/network_access.md")
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    type = "Benchmark"
+  })
+
+  children = [
+    control.firewall_allow_all_ingress,
+    control.vpc_flow_logs_enabled,
+    control.subnet_private_google_access
+  ]
+}
+
+control "firewall_allow_all_ingress" {
+  title         = "Firewall rules should not allow unrestricted ingress"
+  description   = "Firewall rules should not allow ingress from 0.0.0.0/0 to all ports."
+  documentation = file("./perimeter/docs/firewall_allow_all_ingress.md")
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+
+  sql = <<-EOQ
+    select
+      self_link as resource,
+      case
+        when 
+          direction = 'INGRESS'
+          and source_ranges ?| array['0.0.0.0/0']
+          and (
+            allowed is null
+            or allowed @> '[{"ports": ["0-65535"]}]'::jsonb
+            or allowed @> '[{"ports": ["all"]}]'::jsonb
+            or allowed @> '[{"ports": []}]'::jsonb
+          )
+        then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when 
+          direction = 'INGRESS'
+          and source_ranges ?| array['0.0.0.0/0']
+          and (
+            allowed is null
+            or allowed @> '[{"ports": ["0-65535"]}]'::jsonb
+            or allowed @> '[{"ports": ["all"]}]'::jsonb
+            or allowed @> '[{"ports": []}]'::jsonb
+          )
+        then 'Firewall rule allows unrestricted ingress'
+        else 'Firewall rule does not allow unrestricted ingress'
+      end as reason
+      ${local.tag_dimensions_sql}
+      ${local.common_dimensions_sql}
+    from
+      gcp_compute_firewall;
+  EOQ
+}
+
+control "vpc_flow_logs_enabled" {
+  title         = "VPC networks should have flow logs enabled"
+  description   = "VPC flow logs provide network traffic visibility and should be enabled for security monitoring."
+  documentation = file("./perimeter/docs/vpc_flow_logs_enabled.md")
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+
+  sql = <<-EOQ
+    with network_subnets as (
+      select
+        n.self_link as network_self_link,
+        n.name as network_name,
+        split_part(n.self_link, 'projects/', 2) as project_id,
+        'global' as location,
+        count(s.self_link) as total_subnets,
+        count(case when s.log_config_enable or s.enable_flow_logs then 1 end) as subnets_with_flow_logs
+      from
+        gcp_compute_network n
+        left join gcp_compute_subnetwork s on s.network = n.self_link
+      group by
+        n.self_link,
+        n.name
+    )
+    select
+      network_self_link as resource,
+      case
+        when total_subnets = 0 then 'info'
+        when total_subnets = subnets_with_flow_logs then 'ok'
+        when subnets_with_flow_logs = 0 then 'alarm'
+        else 'info'
+      end as status,
+      case
+        when total_subnets = 0 then 'VPC network has no subnets'
+        when total_subnets = subnets_with_flow_logs then 'Flow logs enabled on all ' || total_subnets || ' subnet(s)'
+        when subnets_with_flow_logs = 0 then 'Flow logs not enabled on any of the ' || total_subnets || ' subnet(s)'
+        else 'Flow logs enabled on ' || subnets_with_flow_logs || ' out of ' || total_subnets || ' subnet(s)'
+      end as reason,
+      project_id,
+      location
+      ${local.tag_dimensions_sql}
+    from
+      network_subnets;
+  EOQ
+}
+
+control "subnet_private_google_access" {
+  title         = "Subnets should have Private Google Access enabled"
+  description   = "Private Google Access allows VMs to reach Google APIs and services without public IP addresses."
+  documentation = file("./perimeter/docs/subnet_private_google_access.md")
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+
+  sql = <<-EOQ
+    select
+      self_link as resource,
+      case
+        when private_ip_google_access then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when private_ip_google_access then 'Subnet has Private Google Access enabled'
+        else 'Subnet does not have Private Google Access enabled'
+      end as reason
+      ${local.tag_dimensions_sql}
+      ${local.common_dimensions_sql}
+    from
+      gcp_compute_subnetwork;
+  EOQ
+} 
