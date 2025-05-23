@@ -118,7 +118,7 @@ control "kms_key_shared_outside_org" {
       select
         k.self_link,
         k.name,
-        k.project_id,
+        k.project,
         split_part(m.name, ':', 2) as bound_project_id
       from
         gcp_kms_key k,
@@ -139,7 +139,7 @@ control "kms_key_shared_outside_org" {
         when bound_project_id not in (select p from unnest($1::text[]) as p) then name || ' is shared with untrusted project: ' || bound_project_id
         else name || ' is only shared with trusted projects.'
       end as reason,
-      project_id
+      project
       ${local.tag_dimensions_sql}
     from
       key_bindings;
