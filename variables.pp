@@ -24,16 +24,23 @@ locals {
     service  = "GCP"
   }
 
-  # SQL snippets for dimensions
-  common_dimensions_sql = join("", [
-    contains(var.common_dimensions, "location") ? ", location" : "",
-    contains(var.common_dimensions, "project") ? ", project" : ""
-  ])
+  # Local internal variable to build the SQL select clause for common
+  # dimensions using a table name qualifier if required. Do not edit directly.
+  common_dimensions_qualifier_sql = <<-EOQ
+  %{~if contains(var.common_dimensions, "location")}, __QUALIFIER__location%{endif~}
+  %{~if contains(var.common_dimensions, "project")}, __QUALIFIER__project%{endif~}
+  EOQ
 
-  tag_dimensions_sql = length(var.tag_dimensions) > 0 ? (
-    ", " + join(", ", [
-      for dim in var.tag_dimensions :
-      format("labels ->> '%s' as \"%s\"", dim, replace(dim, "\"", "\"\""))
-    ])
-  ) : ""
+  # Local internal variable to build the SQL select clause for tag
+  # dimensions. Do not edit directly.
+  tag_dimensions_qualifier_sql = <<-EOQ
+  %{~for dim in var.tag_dimensions},  __QUALIFIER__labels ->> '${dim}' as "${replace(dim, "\"", "\"\"")}"%{endfor~}
+  EOQ
+}
+
+locals {
+  # Local internal variable with the full SQL select clause for common
+  # dimensions and tags. Do not edit directly.
+  common_dimensions_sql = replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "")
+  tag_dimensions_sql    = replace(local.tag_dimensions_qualifier_sql, "__QUALIFIER__", "")
 } 

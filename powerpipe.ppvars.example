@@ -1,18 +1,6 @@
-# Example trusted GCP projects
-trusted_projects = [
-  "my-trusted-project-1",
-  "my-trusted-project-2"
-]
+# Dimensions
+common_dimensions = ["project", "location"]
+tag_dimensions    = []
 
-# Common dimensions to include in controls
-common_dimensions = [
-  "project",
-  "location"
-]
-
-# Example tag dimensions to include (GCP labels)
-tag_dimensions = [
-  "environment",
-  "owner",
-  "cost_center"
-] 
+# List of trusted projects
+trusted_projects = ["my-trusted-project-1", "my-trusted-project-2"] 
