@@ -17,7 +17,6 @@ benchmark "trusted_access" {
   documentation = file("./perimeter/docs/trusted_access.md")
   children = [
     control.cross_project_service_account_use,
-    control.vpc_shared_outside_org,
     control.kms_key_shared_outside_org
   ]
 
@@ -60,52 +59,6 @@ control "cross_project_service_account_use" {
 
   tags = merge(local.gcp_perimeter_common_tags, {
     service = "GCP/IAM"
-  })
-}
-
-control "vpc_shared_outside_org" {
-  title       = "VPC networks should not be shared outside the organization"
-  description = "VPC networks should only be shared with projects within the same organization."
-
-  sql = <<-EOQ
-    with shared_vpcs as (
-      select
-        n.self_link,
-        n.name,
-        p.project_id,
-        xpn.name as shared_project_name,
-        xpn.project_id as shared_project_id
-      from
-        gcp_compute_network n
-        left join gcp_project p on n.project_id = p.project_id
-        left join gcp_compute_shared_vpc_host_project host on p.project_id = host.project_id
-        left join gcp_compute_shared_vpc_service_project xpn on host.project_id = xpn.host_project_id
-      where
-        xpn.project_id not in (select project_id from unnest($1::text[]) as project_id)
-        and xpn.project_id is not null
-    )
-    select
-      self_link as resource,
-      case
-        when shared_project_id is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when shared_project_id is not null then name || ' is shared with untrusted project: ' || shared_project_id
-        else name || ' is not shared with untrusted projects.'
-      end as reason,
-      project_id
-      ${local.tag_dimensions_sql}
-    from
-      shared_vpcs;
-  EOQ
-
-  param "trusted_projects" {
-    default = var.trusted_projects
-  }
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
   })
 }
 
