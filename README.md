@@ -3,10 +3,10 @@
 A GCP perimeter checking tool that can be used to look for resources that are publicly accessible, shared with untrusted entities, have insecure network configurations, and more.
 
 Run checks in a dashboard:
-![image](https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_public_access_dashboard.png)
+![image](https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_network_access_dashboard.png)
 
 Or in a terminal:
-![image](https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_public_access_console.png)
+![image](https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_network_access_console.png)
 
 ## Documentation
 
