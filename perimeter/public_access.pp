@@ -1,9 +1,11 @@
 benchmark "public_access" {
   title         = "Public Access"
-  description   = "Resources should not be publicly accessible as they could expose sensitive data to bad actors."
+  description   = "Resources should not be exposed to the internet or publicly accessible."
   documentation = file("./perimeter/docs/public_access.md")
   children = [
-    benchmark.public_access_settings
+    benchmark.public_access_compute,
+    benchmark.public_access_database,
+    benchmark.public_access_network
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -11,14 +13,16 @@ benchmark "public_access" {
   })
 }
 
-benchmark "public_access_settings" {
-  title         = "Public Access Settings"
-  description   = "Resources should not be publicly accessible or exposed to the internet through configurations and settings."
-  documentation = file("./perimeter/docs/public_access_settings.md")
+benchmark "public_access_compute" {
+  title         = "Public Access Compute"
+  description   = "Compute resources should not be exposed to the internet through public IP addresses or network configurations."
+  documentation = file("./perimeter/docs/public_access_compute.md")
   children = [
-    control.storage_bucket_public_access,
-    control.compute_instance_public_ip,
-    control.cloud_sql_public_ip
+    control.compute_instance_no_public_ip,
+    control.cloud_function_vpc_connector,
+    control.cloud_run_vpc_connector,
+    control.gke_cluster_private_nodes,
+    control.gke_cluster_no_public_endpoint
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -26,82 +30,30 @@ benchmark "public_access_settings" {
   })
 }
 
-control "storage_bucket_public_access" {
-  title       = "Storage buckets should not be publicly accessible"
-  description = "Cloud Storage buckets should not grant public access to prevent unauthorized data exposure."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when iam_policy -> 'bindings' @> '[{"members": ["allUsers"]}]'::jsonb then 'alarm'
-        when iam_policy -> 'bindings' @> '[{"members": ["allAuthenticatedUsers"]}]'::jsonb then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when iam_policy -> 'bindings' @> '[{"members": ["allUsers"]}]'::jsonb then title || ' grants public access to allUsers.'
-        when iam_policy -> 'bindings' @> '[{"members": ["allAuthenticatedUsers"]}]'::jsonb then title || ' grants public access to allAuthenticatedUsers.'
-        else title || ' does not grant public access.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_storage_bucket;
-  EOQ
+benchmark "public_access_database" {
+  title         = "Public Access Database"
+  description   = "Database resources should not be exposed to the internet through public IP addresses or network configurations."
+  documentation = file("./perimeter/docs/public_access_database.md")
+  children = [
+    control.sql_instance_no_public_ip,
+    control.memorystore_instance_private_ip
+  ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Storage"
+    type = "Benchmark"
   })
 }
 
-control "compute_instance_public_ip" {
-  title       = "Compute instances should not have public IPs unless required"
-  description = "Compute Engine instances should not have public IP addresses unless they need to be publicly accessible."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then title || ' has a public IP address.'
-        else title || ' does not have a public IP address.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_compute_instance;
-  EOQ
+benchmark "public_access_network" {
+  title         = "Public Access Network"
+  description   = "Network configurations should not allow unrestricted access from the internet."
+  documentation = file("./perimeter/docs/public_access_network.md")
+  children = [
+    control.firewall_rule_restrict_ingress_all,
+    control.firewall_rule_restrict_ingress_common_ports
+  ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "cloud_sql_public_ip" {
-  title       = "Cloud SQL instances should not be publicly accessible"
-  description = "Cloud SQL instances should not have public IP addresses unless required for specific use cases."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when ip_configuration ->> 'ipv4Enabled' = 'true' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ip_configuration ->> 'ipv4Enabled' = 'true' then title || ' has public IP enabled.'
-        else title || ' does not have public IP enabled.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_sql_database_instance;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/SQL"
+    type = "Benchmark"
   })
 } 

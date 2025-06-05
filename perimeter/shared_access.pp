@@ -3,7 +3,35 @@ benchmark "shared_access" {
   description   = "Resource sharing should be isolated to reduce the blast radius in case of a breach."
   documentation = file("./perimeter/docs/shared_access.md")
   children = [
+    benchmark.shared_access_settings,
+    benchmark.shared_access_iam,
     benchmark.trusted_access
+  ]
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    type = "Benchmark"
+  })
+}
+
+benchmark "shared_access_settings" {
+  title         = "Shared Access Settings"
+  description   = "Resource sharing through configuration settings should be limited to necessary cases."
+  documentation = file("./perimeter/docs/shared_access_settings.md")
+  children = [
+    control.kms_key_shared_outside_org
+  ]
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    type = "Benchmark"
+  })
+}
+
+benchmark "shared_access_iam" {
+  title         = "Shared Access IAM"
+  description   = "Resource sharing through IAM policies should be limited to necessary cases."
+  documentation = file("./perimeter/docs/shared_access_iam.md")
+  children = [
+    control.cross_project_service_account_use
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
