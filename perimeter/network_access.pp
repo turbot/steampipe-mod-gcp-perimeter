@@ -4,8 +4,7 @@ benchmark "network_access" {
   documentation = file("./perimeter/docs/network_access.md")
   children = [
     benchmark.network_general_access,
-    benchmark.firewall_access,
-    benchmark.public_ips
+    benchmark.firewall_access
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -248,98 +247,5 @@ control "firewall_rule_restrict_ingress_common_ports" {
 
   tags = merge(local.gcp_perimeter_common_tags, {
     service = "GCP/Compute"
-  })
-}
-
-benchmark "public_ips" {
-  title         = "Public IPs"
-  description   = "Resources should not have public IP addresses, as these can expose them to the internet."
-  documentation = file("./perimeter/docs/public_ips.md")
-  children = [
-    control.compute_instance_no_public_ip,
-    control.sql_instance_no_public_ip,
-    control.gke_cluster_no_public_endpoint
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type = "Benchmark"
-  })
-}
-
-control "compute_instance_no_public_ip" {
-  title       = "Compute instances should not have public IP addresses"
-  description = "This control checks whether Compute Engine instances have public IP addresses assigned."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then title || ' has public IP address.'
-        else title || ' does not have public IP address.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_compute_instance;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "sql_instance_no_public_ip" {
-  title       = "Cloud SQL instances should not have public IP addresses"
-  description = "This control checks whether Cloud SQL instances have public IP addresses enabled."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when ip_configuration ->> 'ipv4Enabled' = 'true' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ip_configuration ->> 'ipv4Enabled' = 'true' then title || ' has public IP enabled.'
-        else title || ' does not have public IP enabled.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_sql_database_instance;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/SQL"
-  })
-}
-
-control "gke_cluster_no_public_endpoint" {
-  title       = "GKE clusters should not have public endpoints"
-  description = "This control checks whether GKE clusters have public endpoints enabled."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when private_cluster_config -> 'enablePrivateEndpoint' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when private_cluster_config -> 'enablePrivateEndpoint' = 'true' then title || ' has private endpoint only.'
-        else title || ' has public endpoint enabled.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_kubernetes_cluster;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/GKE"
   })
 } 
