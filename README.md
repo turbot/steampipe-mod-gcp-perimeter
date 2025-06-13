@@ -1,6 +1,6 @@
 # GCP Perimeter Mod for Powerpipe
 
-A GCP perimeter checking tool that can be used to look for resources that are publicly accessible, shared with untrusted entities, have insecure network configurations, and more.
+A GCP perimeter checking tool that can be used to look for resources that are publicly accessible, have insecure network configurations, and check IAM policies for untrusted access.
 
 Run checks in a dashboard:
 ![image](https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_network_access_dashboard.png)
@@ -71,13 +71,13 @@ powerpipe benchmark list
 Run a benchmark:
 
 ```sh
-powerpipe benchmark run public_access
+powerpipe benchmark run iam_policy_shared_access
 ```
 
 Run a specific control:
 
 ```sh
-powerpipe control run storage_bucket_public_access
+powerpipe control run iam_policy_shared_service_account
 ```
 
 Different output formats are also available, for more information please see
@@ -85,7 +85,7 @@ Different output formats are also available, for more information please see
 
 ### Configure Variables
 
-Several benchmarks have [input variables](https://powerpipe.io/docs/build/mod-variables#input-variables) that can be configured to better match your environment and requirements. Each variable has a default defined in its source file, e.g., `perimeter/shared_access.pp`, but these can be overwritten in several ways:
+The benchmarks have [input variables](https://powerpipe.io/docs/build/mod-variables#input-variables) that can be configured to better match your environment and requirements. Each variable has a default defined in its source file, e.g., `perimeter/iam_policy_shared_access.pp`, but these can be overwritten in several ways:
 
 It's easiest to setup your vars file, starting with the sample:
 
@@ -97,21 +97,21 @@ vi powerpipe.ppvars
 Alternatively you can pass variables on the command line:
 
 ```sh
-powerpipe benchmark run shared_access --var='trusted_projects=["my-project-1", "my-project-2"]'
+powerpipe benchmark run iam_policy_shared_access --var='trusted_users=["user1@example.com", "user2@example.com"]'
 ```
 
 Or through environment variables:
 
 ```sh
-export PP_VAR_trusted_projects='["my-project-1", "my-project-2"]'
-powerpipe control run vpc_shared_outside_org
+export PP_VAR_trusted_users='["user1@example.com", "user2@example.com"]'
+powerpipe control run iam_policy_shared_service_account
 ```
 
 These are only some of the ways you can set variables. For a full list, please see [Passing Input Variables](https://powerpipe.io/docs/build/mod-variables#passing-input-variables).
 
 ### Common and Tag Dimensions
 
-The benchmark queries use common properties (like `project` and `location`) and labels that are defined in the form of a default list of strings in the `variables.sp` file. These properties can be overwritten in several ways:
+The benchmark queries use common properties (like `project` and `location`) and labels that are defined in the form of a default list of strings in the `variables.pp` file. These properties can be overwritten in several ways:
 
 It's easiest to setup your vars file, starting with the sample:
 
