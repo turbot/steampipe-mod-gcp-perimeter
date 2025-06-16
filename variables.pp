@@ -1,9 +1,3 @@
-variable "trusted_projects" {
-  type        = list(string)
-  description = "A list of trusted GCP project IDs that resources can be shared with."
-  default     = []
-}
-
 variable "common_dimensions" {
   type        = list(string)
   description = "A list of common dimensions to add to each control."

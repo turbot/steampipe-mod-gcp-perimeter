@@ -1,27 +1,15 @@
 ## Firewall Access
 
-The firewall access benchmark evaluates GCP firewall rules for configurations that could allow unauthorized access from the internet. This includes:
+This benchmark answers the following questions:
 
-### Ingress Rules
-Firewall rules should carefully restrict inbound access:
-- Rules should not allow unrestricted access from 0.0.0.0/0
-- Common ports (e.g., SSH, RDP, database ports) should be restricted
-- Access should be limited to specific IP ranges or resources
+- Are there any firewall rules allowing unrestricted TCP/UDP access from 0.0.0.0/0?
+- Are there any firewall rules allowing access to sensitive ports (SSH, RDP, MySQL, PostgreSQL, MongoDB, MSSQL, etc.) from 0.0.0.0/0 or ::/0?
+- Are there any firewall rules allowing access from IPv6 addresses (::/0)?
 
-### Common Ports
-The following ports are considered sensitive and should be restricted:
-- SSH (22)
-- RDP (3389)
-- MySQL (3306)
-- MSSQL (1433)
-- PostgreSQL (5432)
-- MongoDB (27017)
+### Included Controls
 
-### Controls
-The benchmark includes the following controls:
-
-- **Firewall Rule Restrict Ingress All**: Checks for rules that allow unrestricted ingress from 0.0.0.0/0
-- **Firewall Rule Restrict Ingress Common Ports**: Validates that common ports are not exposed to 0.0.0.0/0
+- **VPC Firewall Restrict Ingress TCP/UDP**: Checks if any firewall rules allow inbound TCP or UDP access from 0.0.0.0/0
+- **VPC Firewall Restrict Ingress Common Ports**: Verifies if any firewall rules allow access to common sensitive ports (SSH, RDP, databases, etc.) from 0.0.0.0/0 or ::/0
 
 ### Best Practices
 - Use service accounts and IAM for service-to-service communication where possible

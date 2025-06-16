@@ -1,26 +1,17 @@
 ## Network General Access
 
-The network general access benchmark evaluates GCP resources for adherence to network security best practices. This includes:
+This benchmark answers the following questions:
 
-### VPC Connectivity
-Resources should be configured to use VPC networks and connectors where possible:
-- Cloud Functions should use VPC connectors to securely communicate with other resources
-- Cloud Run services should use VPC connectors for secure internal communication
-- Cloud SQL instances should use private IP addresses for VPC access
-- GKE clusters should use private nodes to prevent direct internet exposure
-- Memorystore instances should use private IP addresses for secure access
+- Are Cloud Functions and Cloud Run services configured with VPC connectors for secure internal communication?
+- Are Cloud SQL instances using private IP addresses instead of public IPs?
+- Are GKE clusters configured with master authorized networks and network policies?
+- Are Redis instances (Memorystore) using private service access and custom networks?
 
-### Private Access
-Resources should prefer private access methods over public ones:
-- Cloud SQL instances should be configured for private IP access
-- GKE clusters should use private nodes and endpoints
-- Memorystore instances should be restricted to private IP access
+### Included Controls
 
-### Controls
-The benchmark includes the following controls:
-
-- **Cloud Function VPC Connector**: Ensures Cloud Functions are configured with VPC connectors
-- **Cloud Run VPC Connector**: Verifies Cloud Run services use VPC connectors
-- **Cloud SQL Instance Private IP**: Checks if Cloud SQL instances are configured for private IP access
-- **GKE Cluster Private Nodes**: Validates that GKE clusters use private nodes
-- **Memorystore Instance Private IP**: Ensures Memorystore instances use private IP configuration 
+- **Cloud Functions Ingress Settings**: Checks if Cloud Functions are restricted to internal or internal with load balancer traffic
+- **Cloud Run Service Ingress**: Verifies if Cloud Run services are restricted to internal or internal with load balancer traffic
+- **SQL Database Instance Authorized Networks**: Ensures Cloud SQL instances don't allow access from 0.0.0.0/0
+- **Kubernetes Cluster Master Authorized Networks**: Validates that GKE clusters have restricted access to the Kubernetes API server
+- **Kubernetes Cluster Network Policy**: Confirms that GKE clusters have network policy enabled for pod-to-pod communication
+- **Redis Instance Authorized Network**: Checks if Memorystore Redis instances use private service access and custom networks 
