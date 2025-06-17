@@ -18,8 +18,8 @@ benchmark "network_general_access" {
   description   = "Resources should follow general best practices to safeguard from exposure to public access."
   documentation = file("./perimeter/docs/network_general_access.md")
   children = [
-    control.cloud_run_service_ingress,
-    control.cloudfunctions_function_ingress_settings,
+    control.cloud_run_service_public_ingress_enabled,
+    control.cloudfunctions_function_public_ingress_enabled,
     control.kubernetes_cluster_master_authorized_networks,
     control.kubernetes_cluster_network_policy,
     control.redis_instance_authorized_network,
@@ -31,9 +31,9 @@ benchmark "network_general_access" {
   })
 }
 
-control "cloudfunctions_function_ingress_settings" {
-  title       = "Cloud Functions should restrict ingress settings"
-  description = "Cloud Functions should be configured to only allow internal traffic or internal traffic with load balancer to ensure secure access patterns."
+control "cloudfunctions_function_public_ingress_enabled" {
+  title       = "Cloud Function allowing public ingress from all sources"
+  description = "Detect when a Cloud Function allows ingress from all sources by using the ALLOW_ALL ingress setting. This exposes the function to the public internet and increases the risk of unauthorized access."
 
   sql = <<-EOQ
     select
@@ -59,9 +59,9 @@ control "cloudfunctions_function_ingress_settings" {
   })
 }
 
-control "cloud_run_service_ingress" {
-  title       = "Cloud Run services should restrict ingress traffic"
-  description = "Cloud Run services should be configured to only allow internal traffic or internal traffic with load balancer to ensure secure access patterns."
+control "cloud_run_service_public_ingress_enabled" {
+  title       = "Cloud Run service allowing public ingress from all sources"
+  description = "Detect when a Cloud Run service allows ingress from all sources by using the ALL ingress setting. This exposes the service to the public internet and increases the risk of unauthorized access."
 
   sql = <<-EOQ
     select
@@ -86,6 +86,7 @@ control "cloud_run_service_ingress" {
     service = "GCP/CloudRun"
   })
 }
+
 
 control "sql_database_instance_authorized_networks" {
   title       = "Cloud SQL database instances should restrict authorized networks"

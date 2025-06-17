@@ -30,18 +30,27 @@ benchmark "iam_policy_shared_access" {
   children = [
     # Identity & Access
     control.iam_policy_shared_service_account,
+    control.iam_policy_shared_billing_account,
     # Storage & Databases
     control.iam_policy_shared_storage_bucket,
     control.iam_policy_shared_bigtable_instance,
     # Compute & Serverless
     control.iam_policy_shared_compute_instance,
+    control.iam_policy_shared_compute_disk,
+    control.iam_policy_shared_compute_image,
+    control.iam_policy_shared_compute_node_group,
+    control.iam_policy_shared_compute_node_template,
+    control.iam_policy_shared_compute_resource_policy,
+    control.iam_policy_shared_compute_subnetwork,
     control.iam_policy_shared_cloud_function,
     control.iam_policy_shared_cloud_run,
+    control.iam_policy_shared_cloud_run_job,
     # Messaging & Integration
     control.iam_policy_shared_pubsub_topic,
     control.iam_policy_shared_pubsub_subscription,
     # Security & Encryption
-    control.iam_policy_shared_kms_key
+    control.iam_policy_shared_kms_key,
+    control.iam_policy_shared_kms_key_ring
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -479,5 +488,275 @@ control "iam_policy_shared_cloud_function" {
 
   tags = merge(local.gcp_perimeter_common_tags, {
     service = "GCP/CloudFunctions"
+  })
+}
+
+control "iam_policy_shared_billing_account" {
+  title       = "Billing account IAM policies should only grant access to trusted principals"
+  description = "Check if billing account IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_billing_account"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Billing"
+  })
+}
+
+control "iam_policy_shared_compute_disk" {
+  title       = "Compute disk IAM policies should only grant access to trusted principals"
+  description = "Check if Compute disk IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_disk"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_compute_image" {
+  title       = "Compute image IAM policies should only grant access to trusted principals"
+  description = "Check if Compute image IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_image"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_compute_node_group" {
+  title       = "Compute node group IAM policies should only grant access to trusted principals"
+  description = "Check if Compute node group IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_node_group"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_compute_node_template" {
+  title       = "Compute node template IAM policies should only grant access to trusted principals"
+  description = "Check if Compute node template IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_node_template"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_compute_resource_policy" {
+  title       = "Compute resource IAM policies should only grant access to trusted principals"
+  description = "Check if Compute resource IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_resource_policy"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_compute_subnetwork" {
+  title       = "Compute subnetwork IAM policies should only grant access to trusted principals"
+  description = "Check if Compute subnetwork IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_subnetwork"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/Compute"
+  })
+}
+
+control "iam_policy_shared_cloud_run_job" {
+  title       = "Cloud Run job IAM policies should only grant access to trusted principals"
+  description = "Check if Cloud Run job IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_cloud_run_job"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/CloudRun"
+  })
+}
+
+control "iam_policy_shared_kms_key_ring" {
+  title       = "KMS key ring IAM policies should only grant access to trusted principals"
+  description = "Check if Cloud KMS key ring IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_kms_key_ring"), "__RESOURCE_COLUMN__", "name")
+
+  param "trusted_users" {
+    description = "A list of trusted Google Account emails."
+    default     = var.trusted_users
+  }
+
+  param "trusted_groups" {
+    description = "A list of trusted Google Groups."
+    default     = var.trusted_groups
+  }
+
+  param "trusted_service_accounts" {
+    description = "A list of trusted service accounts."
+    default     = var.trusted_service_accounts
+  }
+
+  param "trusted_domains" {
+    description = "A list of trusted Google Workspace domains."
+    default     = var.trusted_domains
+  }
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/KMS"
   })
 } 
