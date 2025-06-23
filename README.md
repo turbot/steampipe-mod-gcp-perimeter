@@ -71,13 +71,13 @@ powerpipe benchmark list
 Run a benchmark:
 
 ```sh
-powerpipe benchmark run iam_policy_shared_access
+powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access
 ```
 
 Run a specific control:
 
 ```sh
-powerpipe control run iam_policy_shared_service_account
+powerpipe control run gcp_perimeter.control.iam_policy_shared_service_account
 ```
 
 Different output formats are also available, for more information please see
@@ -97,14 +97,14 @@ vi powerpipe.ppvars
 Alternatively you can pass variables on the command line:
 
 ```sh
-powerpipe benchmark run iam_policy_shared_access --var='trusted_users=["user1@example.com", "user2@example.com"]'
+powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access --var='gcp_perimeter.trusted_users=["user1@example.com", "user2@example.com"]'
 ```
 
 Or through environment variables:
 
 ```sh
 export PP_VAR_trusted_users='["user1@example.com", "user2@example.com"]'
-powerpipe control run iam_policy_shared_service_account
+powerpipe control run gcp_perimeter.control.iam_policy_shared_service_account
 ```
 
 These are only some of the ways you can set variables. For a full list, please see [Passing Input Variables](https://powerpipe.io/docs/build/mod-variables#passing-input-variables).
@@ -123,14 +123,14 @@ vi powerpipe.ppvars
 Alternatively you can pass variables on the command line:
 
 ```sh
-powerpipe benchmark run public_access --var 'common_dimensions=["project", "location"]'
+powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_public_access --var 'gcp_perimeter.common_dimensions=["project", "location"]'
 ```
 
 Or through environment variables:
 
 ```sh
 export PP_VAR_common_dimensions='["project", "location"]'
-powerpipe control run cloud_sql_public_ip
+powerpipe control run gcp_perimeter.bigquery_dataset_policy_public_access
 ```
 
 ## Open Source & Contributing

@@ -19,7 +19,6 @@ benchmark "network_general_access" {
   documentation = file("./perimeter/docs/network_general_access.md")
   children = [
     control.cloud_run_service_public_ingress_enabled,
-    control.cloudfunctions_function_public_ingress_enabled,
     control.kubernetes_cluster_master_authorized_networks,
     control.kubernetes_cluster_network_policy,
     control.redis_instance_authorized_network,
@@ -28,34 +27,6 @@ benchmark "network_general_access" {
 
   tags = merge(local.gcp_perimeter_common_tags, {
     type = "Benchmark"
-  })
-}
-
-control "cloudfunctions_function_public_ingress_enabled" {
-  title       = "Cloud Function allowing public ingress from all sources"
-  description = "Detect when a Cloud Function allows ingress from all sources by using the ALLOW_ALL ingress setting. This exposes the function to the public internet and increases the risk of unauthorized access."
-
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when ingress_settings = 'ALLOW_INTERNAL_ONLY' 
-          or ingress_settings = 'ALLOW_INTERNAL_AND_GCLB' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ingress_settings = 'ALLOW_INTERNAL_ONLY' then title || ' only allows internal traffic.'
-        when ingress_settings = 'ALLOW_INTERNAL_AND_GCLB' then title || ' allows internal and load balancer traffic.'
-        else title || ' allows unrestricted ingress access.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_cloudfunctions_function;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/CloudFunctions"
   })
 }
 
@@ -128,7 +99,7 @@ control "sql_database_instance_authorized_networks" {
 }
 
 control "kubernetes_cluster_master_authorized_networks" {
-  title       = "GKE clusters should restrict access to Kubernetes API server"
+  title       = "GKE cluster should restrict authorized networks"
   description = "GKE clusters should have master authorized networks enabled and should not allow access from 0.0.0.0/0."
 
   sql = <<-EOQ
