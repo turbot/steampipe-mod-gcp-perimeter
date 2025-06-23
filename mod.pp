@@ -6,6 +6,7 @@ mod "gcp_perimeter" {
   documentation = file("./docs/index.md")
   icon          = "/images/mods/turbot/gcp-perimeter.svg"
   categories    = ["gcp", "perimeter", "public cloud", "security"]
+  database      = var.database
 
   opengraph {
     title       = "Powerpipe Mod for GCP Perimeter"
