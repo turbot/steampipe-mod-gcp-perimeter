@@ -12,4 +12,4 @@ trusted_groups = ["admins@googlegroups.com", "developers@googlegroups.com"]
 trusted_service_accounts = ["app-sa@project-id.iam.gserviceaccount.com"]
 
 # List of trusted domains
-trusted_domains = ["trusted-company.com", "trusted-partner.com"] 
+trusted_domains = ["trusted-company.com", "trusted-partner.com"]

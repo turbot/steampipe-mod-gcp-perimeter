@@ -61,111 +61,72 @@ benchmark "iam_policy_shared_access" {
 locals {
   # For resources with direct IAM policy access
   iam_policy_shared_sql = <<EOQ
-    with untrusted_bindings as (
+    with policy_analysis as (
       select
         __RESOURCE_COLUMN__ as resource_id,
-        array_agg(distinct member) as untrusted_members,
-        count(*) as untrusted_bindings_num
+        -- Count all members
+        count(*) as total_members,
+        -- Count project-level members
+        count(*) filter (where member like 'project%') as project_members,
+        -- Count trusted members (excluding project-level)
+        count(*) filter (where 
+          member not like 'project%' and (
+            (member like 'user:%' and split_part(member, 'user:', 2) = any(($1)::text[]))
+            or
+            (member like 'group:%' and split_part(member, 'group:', 2) = any(($2)::text[]))
+            or
+            (member like 'serviceAccount:%' and split_part(member, 'serviceAccount:', 2) = any(($3)::text[]))
+            or
+            (member like 'domain:%' and split_part(member, 'domain:', 2) = any(($4)::text[]))
+          )
+        ) as trusted_members,
+        -- Collect untrusted members for alarm messages
+        array_agg(distinct member) filter (where 
+          member not like 'project%' and not (
+            (member like 'user:%' and split_part(member, 'user:', 2) = any(($1)::text[]))
+            or
+            (member like 'group:%' and split_part(member, 'group:', 2) = any(($2)::text[]))
+            or
+            (member like 'serviceAccount:%' and split_part(member, 'serviceAccount:', 2) = any(($3)::text[]))
+            or
+            (member like 'domain:%' and split_part(member, 'domain:', 2) = any(($4)::text[]))
+          )
+        ) as untrusted_members
       from
         __TABLE_NAME__,
         jsonb_array_elements(iam_policy -> 'bindings') as binding,
         jsonb_array_elements_text(binding -> 'members') as member
-      where
-        (
-          (member like 'user:%' and 
-          split_part(member, 'user:', 2) != any(($1)::text[]))
-          or
-          (member like 'group:%' and 
-          split_part(member, 'group:', 2) != any(($2)::text[]))
-          or
-          (member like 'serviceAccount:%' and 
-          split_part(member, 'serviceAccount:', 2) != any(($3)::text[]))
-          or
-          (member like 'domain:%' and 
-          split_part(member, 'domain:', 2) != any(($4)::text[]))
-        )
-        -- Exclude project-level roles which are managed separately
-        and member not like 'project%'
       group by
         __RESOURCE_COLUMN__
     )
     select
       r.__RESOURCE_COLUMN__ as resource,
       case
-        when r.iam_policy is null then 'info'
-        when u.resource_id is null then 'ok'
+        -- SKIP: When no members exist
+        when (r.iam_policy -> 'bindings') is null or jsonb_array_length(r.iam_policy -> 'bindings') = 0 then 'skip'
+        -- INFO: When only project-level roles are assigned
+        when p.total_members = p.project_members then 'info'
+        -- OK: When all non-project members are trusted
+        when p.untrusted_members is null and (p.trusted_members > 0 or p.project_members > 0) then 'ok'
+        -- ALARM: When there are untrusted members
         else 'alarm'
       end as status,
       case
-        when r.iam_policy is null then title || ' does not have a defined IAM policy.'
-        when u.resource_id is null then title || ' policy only grants access to trusted principals.'
-        else title || ' policy contains ' || coalesce(u.untrusted_bindings_num, 0) ||
-        ' binding(s) with untrusted principals: ' || array_to_string(u.untrusted_members, ', ')
+        when (r.iam_policy -> 'bindings') is null or jsonb_array_length(r.iam_policy -> 'bindings') = 0 then title || ' has no IAM policy members.'
+        when p.total_members = p.project_members then title || ' only has project-level role assignments (' || p.project_members || ' members).'
+        when p.untrusted_members is null and (p.trusted_members > 0 or p.project_members > 0) then title || ' policy only grants access to trusted principals (' || coalesce(p.trusted_members, 0) || ' trusted + ' || coalesce(p.project_members, 0) || ' project-level).'
+        else title || ' policy contains ' || coalesce(array_length(p.untrusted_members, 1), 0) || ' untrusted member(s): ' || array_to_string(p.untrusted_members, ', ')
       end as reason,
       r.project,
       r.location
     from
       __TABLE_NAME__ as r
-      left join untrusted_bindings as u on u.resource_id = r.__RESOURCE_COLUMN__
+      left join policy_analysis as p on p.resource_id = r.__RESOURCE_COLUMN__
     where
       -- Only check resources where we have access to IAM policy
       r.iam_policy is not null;
   EOQ
 
-  # For storage buckets that use ACLs
-  storage_bucket_shared_sql = <<EOQ
-    with bucket_acls as (
-      select
-        name as resource_id,
-        jsonb_array_elements(acl) as acl_entry
-      from
-        gcp_storage_bucket
-    ),
-    untrusted_access as (
-      select
-        resource_id,
-        array_agg(distinct acl_entry ->> 'entity') as untrusted_entities,
-        count(*) as untrusted_access_count
-      from
-        bucket_acls
-      where
-        acl_entry ->> 'entity' not like 'project-%'
-        and acl_entry ->> 'entity' not in ('private', 'projectPrivate')
-        and (
-          (acl_entry ->> 'entity' like 'user-%' and 
-          split_part(acl_entry ->> 'entity', 'user-', 2) != any(($1)::text[]))
-          or
-          (acl_entry ->> 'entity' like 'group-%' and 
-          split_part(acl_entry ->> 'entity', 'group-', 2) != any(($2)::text[]))
-          or
-          (acl_entry ->> 'entity' like 'serviceAccount-%' and 
-          split_part(acl_entry ->> 'entity', 'serviceAccount-', 2) != any(($3)::text[]))
-          or
-          (acl_entry ->> 'entity' like 'domain-%' and 
-          split_part(acl_entry ->> 'entity', 'domain-', 2) != any(($4)::text[]))
-        )
-      group by
-        resource_id
-    )
-    select
-      b.name as resource,
-      case
-        when b.acl is null then 'info'
-        when u.resource_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.acl is null then title || ' does not have defined ACLs.'
-        when u.resource_id is null then title || ' only grants access to trusted principals.'
-        else title || ' grants access to ' || coalesce(u.untrusted_access_count, 0) ||
-        ' untrusted entities: ' || array_to_string(u.untrusted_entities, ', ')
-      end as reason,
-      b.project,
-      b.location
-    from
-      gcp_storage_bucket as b
-      left join untrusted_access as u on u.resource_id = b.name;
-  EOQ
 }
 
 control "iam_policy_shared_service_account" {
@@ -201,7 +162,7 @@ control "iam_policy_shared_service_account" {
 control "iam_policy_shared_storage_bucket" {
   title       = "Storage bucket IAM policies should only grant access to trusted principals"
   description = "Check if Cloud Storage bucket IAM policies and ACLs grant access to untrusted users, groups, service accounts, or domains."
-  sql         = local.storage_bucket_shared_sql
+  sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_storage_bucket"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
     description = "A list of trusted Google Account emails."
