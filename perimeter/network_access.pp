@@ -87,7 +87,6 @@ control "cloud_run_service_public_ingress_enabled" {
   })
 }
 
-
 control "sql_database_instance_authorized_networks" {
   title       = "Cloud SQL database instances should restrict authorized networks"
   description = "Cloud SQL database instances should not allow access from 0.0.0.0/0 through authorized networks configuration and should have private IP enabled."
@@ -310,8 +309,7 @@ control "vpc_firewall_restrict_ingress_common_ports" {
         and (
           a ->> 'protocol' = 'all'
           or (
-            a ->> 'protocol' in ('tcp', 'udp')
-            and (
+            (
               -- SSH
               a -> 'ports' @> '["22"]'
               -- RDP
@@ -381,7 +379,7 @@ benchmark "public_ips" {
   description   = "Resources should not have public IP addresses, as these can expose them to the internet."
   documentation = file("./perimeter/docs/public_ips.md")
   children = [
-    control.cloud_function_not_publicly_accessible,
+    control.cloudfunction_function_publicly_accessible,
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
     control.compute_instance_not_publicly_accessible,
@@ -393,8 +391,8 @@ benchmark "public_ips" {
   })
 }
 
-control "cloud_function_not_publicly_accessible" {
-  title       = "Cloud Functions should not have a public IP address"
+control "cloudfunction_function_publicly_accessible" {
+  title       = "Cloud Functions should have a public IP address"
   description = "This control checks whether Cloud Functions have public access enabled."
 
   sql = <<-EOQ

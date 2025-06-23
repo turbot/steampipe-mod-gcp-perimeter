@@ -73,16 +73,16 @@ locals {
       where
         (
           (member like 'user:%' and 
-           split_part(member, 'user:', 2) != any(($1)::text[]))
+          split_part(member, 'user:', 2) != any(($1)::text[]))
           or
           (member like 'group:%' and 
-           split_part(member, 'group:', 2) != any(($2)::text[]))
+          split_part(member, 'group:', 2) != any(($2)::text[]))
           or
           (member like 'serviceAccount:%' and 
-           split_part(member, 'serviceAccount:', 2) != any(($3)::text[]))
+          split_part(member, 'serviceAccount:', 2) != any(($3)::text[]))
           or
           (member like 'domain:%' and 
-           split_part(member, 'domain:', 2) != any(($4)::text[]))
+          split_part(member, 'domain:', 2) != any(($4)::text[]))
         )
         -- Exclude project-level roles which are managed separately
         and member not like 'project%'
@@ -112,59 +112,6 @@ locals {
       r.iam_policy is not null;
   EOQ
 
-  # For BigQuery resources that use access field
-  bigquery_shared_sql = <<EOQ
-    with untrusted_access as (
-      select
-        __RESOURCE_COLUMN__ as resource_id,
-        array_agg(distinct 
-          case 
-            when a->>'userByEmail' is not null and not (a->>'userByEmail' like '%gserviceaccount.com') then 'user:' || a->>'userByEmail'
-            when a->>'groupByEmail' is not null then 'group:' || a->>'groupByEmail'
-            when a->>'userByEmail' like '%gserviceaccount.com' then 'serviceAccount:' || a->>'userByEmail'
-            else null
-          end
-        ) filter (where a->>'userByEmail' is not null or a->>'groupByEmail' is not null) as untrusted_members,
-        count(*) filter (where a->>'userByEmail' is not null or a->>'groupByEmail' is not null) as untrusted_access_count
-      from
-        __TABLE_NAME__ r,
-        jsonb_array_elements(r.access::text::jsonb) as a
-      where
-        (
-          (a->>'userByEmail' is not null and not (a->>'userByEmail' like '%gserviceaccount.com') and 
-           a->>'userByEmail' != any(($1)::text[]))
-          or
-          (a->>'groupByEmail' is not null and 
-           a->>'groupByEmail' != any(($2)::text[]))
-          or
-          (a->>'userByEmail' like '%gserviceaccount.com' and 
-           a->>'userByEmail' != any(($3)::text[]))
-        )
-        -- Exclude special groups which are managed separately
-        and a->>'specialGroup' is null
-      group by
-        __RESOURCE_COLUMN__
-    )
-    select
-      r.__RESOURCE_COLUMN__ as resource,
-      case
-        when r.access is null then 'info'
-        when u.resource_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when r.access is null then title || ' does not have defined access controls.'
-        when u.resource_id is null then title || ' only grants access to trusted principals.'
-        else title || ' grants access to ' || coalesce(u.untrusted_access_count, 0) ||
-        ' untrusted principals: ' || array_to_string(u.untrusted_members, ', ')
-      end as reason,
-      r.project,
-      r.location
-    from
-      __TABLE_NAME__ as r
-      left join untrusted_access as u on u.resource_id = r.__RESOURCE_COLUMN__;
-  EOQ
-
   # For storage buckets that use ACLs
   storage_bucket_shared_sql = <<EOQ
     with bucket_acls as (
@@ -186,16 +133,16 @@ locals {
         and acl_entry ->> 'entity' not in ('private', 'projectPrivate')
         and (
           (acl_entry ->> 'entity' like 'user-%' and 
-           split_part(acl_entry ->> 'entity', 'user-', 2) != any(($1)::text[]))
+          split_part(acl_entry ->> 'entity', 'user-', 2) != any(($1)::text[]))
           or
           (acl_entry ->> 'entity' like 'group-%' and 
-           split_part(acl_entry ->> 'entity', 'group-', 2) != any(($2)::text[]))
+          split_part(acl_entry ->> 'entity', 'group-', 2) != any(($2)::text[]))
           or
           (acl_entry ->> 'entity' like 'serviceAccount-%' and 
-           split_part(acl_entry ->> 'entity', 'serviceAccount-', 2) != any(($3)::text[]))
+          split_part(acl_entry ->> 'entity', 'serviceAccount-', 2) != any(($3)::text[]))
           or
           (acl_entry ->> 'entity' like 'domain-%' and 
-           split_part(acl_entry ->> 'entity', 'domain-', 2) != any(($4)::text[]))
+          split_part(acl_entry ->> 'entity', 'domain-', 2) != any(($4)::text[]))
         )
       group by
         resource_id

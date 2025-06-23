@@ -4,20 +4,9 @@ benchmark "iam_policy_public_access" {
   documentation = file("./perimeter/docs/iam_policy_public_access.md")
   children = [
     control.bigquery_dataset_policy_public_access,
-    control.bigtable_instance_policy_public_access,
-    control.billing_account_policy_public_access,
-    control.cloud_function_policy_public_access,
-    control.cloud_run_job_policy_public_access,
     control.cloud_run_service_policy_public_access,
-    control.compute_disk_policy_public_access,
     control.compute_image_policy_public_access,
-    control.compute_instance_policy_public_access,
-    control.compute_node_group_policy_public_access,
-    control.compute_node_template_policy_public_access,
-    control.compute_resource_policy_public_access,
-    control.compute_subnetwork_policy_public_access,
     control.kms_key_policy_public_access,
-    control.kms_key_ring_policy_public_access,
     control.pubsub_snapshot_policy_public_access,
     control.pubsub_subscription_policy_public_access,
     control.pubsub_topic_policy_public_access,
@@ -48,12 +37,12 @@ locals {
     select
       r.__ARN_COLUMN__ as resource,
       case
-        when r.iam_policy is null then 'info'
+        when (r.iam_policy -> 'bindings') is null then 'info'
         when p.__ARN_COLUMN__ is null then 'ok'
         else 'alarm'
       end as status,
       case
-        when r.iam_policy is null then title || ' does not have a defined IAM policy.'
+        when (r.iam_policy -> 'bindings') is null then title || ' does not have a defined IAM policy.'
         when p.__ARN_COLUMN__ is null then title || ' policy does not allow public access.'
         else title || ' policy contains ' || coalesce(p.bindings_num, 0) ||
         ' binding(s) that allow public access: ' || array_to_string(p.public_members, ', ')
@@ -116,25 +105,7 @@ control "kms_key_policy_public_access" {
   })
 }
 
-control "kms_key_ring_policy_public_access" {
-  title       = "KMS key ring policies should prohibit public access"
-  description = "Check if Cloud KMS key ring policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_kms_key_ring"), "__ARN_COLUMN__", "name")
 
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/KMS"
-  })
-}
-
-control "cloud_function_policy_public_access" {
-  title       = "Cloud Function policies should prohibit public access"
-  description = "Check if Cloud Function IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_cloudfunctions_function"), "__ARN_COLUMN__", "self_link")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/CloudFunctions"
-  })
-}
 
 control "cloud_run_service_policy_public_access" {
   title       = "Cloud Run service policies should prohibit public access"
@@ -146,15 +117,7 @@ control "cloud_run_service_policy_public_access" {
   })
 }
 
-control "cloud_run_job_policy_public_access" {
-  title       = "Cloud Run job policies should prohibit public access"
-  description = "Check if Cloud Run job IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_cloud_run_job"), "__ARN_COLUMN__", "name")
 
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/CloudRun"
-  })
-}
 
 control "bigquery_dataset_policy_public_access" {
   title       = "BigQuery dataset policies should prohibit public access"
@@ -169,7 +132,7 @@ control "bigquery_dataset_policy_public_access" {
         gcp_bigquery_dataset,
         jsonb_array_elements(access) as a
       where
-        a ->> 'specialGroup' in ('allUsers', 'allAuthenticatedUsers')
+        a ->> 'iamMember' in ('allUsers', 'allAuthenticatedUsers')
       group by
         self_link
     )
@@ -195,35 +158,7 @@ control "bigquery_dataset_policy_public_access" {
   })
 }
 
-control "bigtable_instance_policy_public_access" {
-  title       = "Bigtable instance policies should prohibit public access"
-  description = "Check if Bigtable instance IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_bigtable_instance"), "__ARN_COLUMN__", "name")
 
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Bigtable"
-  })
-}
-
-control "billing_account_policy_public_access" {
-  title       = "Billing account policies should prohibit public access"
-  description = "Check if billing account IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_billing_account"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Billing"
-  })
-}
-
-control "compute_disk_policy_public_access" {
-  title       = "Compute disk policies should prohibit public access"
-  description = "Check if Compute disk IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_disk"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
 
 control "compute_image_policy_public_access" {
   title       = "Compute image policies should prohibit public access"
@@ -235,52 +170,4 @@ control "compute_image_policy_public_access" {
   })
 }
 
-control "compute_instance_policy_public_access" {
-  title       = "Compute instance policies should prohibit public access"
-  description = "Check if Compute instance IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_instance"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "compute_node_group_policy_public_access" {
-  title       = "Compute node group policies should prohibit public access"
-  description = "Check if Compute node group IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_node_group"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "compute_node_template_policy_public_access" {
-  title       = "Compute node template policies should prohibit public access"
-  description = "Check if Compute node template IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_node_template"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "compute_resource_policy_public_access" {
-  title       = "Compute resource policies should prohibit public access"
-  description = "Check if Compute resource IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_resource_policy"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
-
-control "compute_subnetwork_policy_public_access" {
-  title       = "Compute subnetwork policies should prohibit public access"
-  description = "Check if Compute subnetwork IAM policies allow public access through allUsers or allAuthenticatedUsers."
-  sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_subnetwork"), "__ARN_COLUMN__", "name")
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-} 
+ 
