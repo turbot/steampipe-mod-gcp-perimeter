@@ -158,8 +158,6 @@ control "bigquery_dataset_policy_public_access" {
   })
 }
 
-
-
 control "compute_image_policy_public_access" {
   title       = "Compute image policies should prohibit public access"
   description = "Check if Compute image IAM policies allow public access through allUsers or allAuthenticatedUsers."
@@ -169,5 +167,3 @@ control "compute_image_policy_public_access" {
     service = "GCP/Compute"
   })
 }
-
- 
