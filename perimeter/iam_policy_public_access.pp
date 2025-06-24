@@ -3,14 +3,14 @@ benchmark "iam_policy_public_access" {
   description   = "Resources should not be publicly accessible through IAM policies as they could expose sensitive data to bad actors."
   documentation = file("./perimeter/docs/iam_policy_public_access.md")
   children = [
-    control.bigquery_dataset_policy_public_access,
-    control.cloud_run_service_policy_public_access,
-    control.compute_image_policy_public_access,
-    control.kms_key_policy_public_access,
-    control.pubsub_snapshot_policy_public_access,
-    control.pubsub_subscription_policy_public_access,
-    control.pubsub_topic_policy_public_access,
-    control.storage_bucket_policy_public_access,
+    control.bigquery_dataset_policy_prohibit_public_access,
+    control.cloud_run_service_policy_prohibit_public_access,
+    control.compute_image_policy_prohibit_public_access,
+    control.kms_key_policy_prohibit_public_access,
+    control.pubsub_snapshot_policy_prohibit_public_access,
+    control.pubsub_subscription_policy_prohibit_public_access,
+    control.pubsub_topic_policy_prohibit_public_access,
+    control.storage_bucket_policy_prohibit_public_access,
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -37,7 +37,7 @@ locals {
     select
       r.__ARN_COLUMN__ as resource,
       case
-        when (r.iam_policy -> 'bindings') is null then 'info'
+        when (r.iam_policy -> 'bindings') is null then 'skip'
         when p.__ARN_COLUMN__ is null then 'ok'
         else 'alarm'
       end as status,
@@ -55,7 +55,7 @@ locals {
   EOQ
 }
 
-control "storage_bucket_policy_public_access" {
+control "storage_bucket_policy_prohibit_public_access" {
   title       = "Storage bucket policies should prohibit public access"
   description = "Check if Cloud Storage bucket policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_storage_bucket"), "__ARN_COLUMN__", "self_link")
@@ -65,7 +65,7 @@ control "storage_bucket_policy_public_access" {
   })
 }
 
-control "pubsub_topic_policy_public_access" {
+control "pubsub_topic_policy_prohibit_public_access" {
   title       = "Pub/Sub topic policies should prohibit public access"
   description = "Check if Pub/Sub topic policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_pubsub_topic"), "__ARN_COLUMN__", "name")
@@ -75,7 +75,7 @@ control "pubsub_topic_policy_public_access" {
   })
 }
 
-control "pubsub_subscription_policy_public_access" {
+control "pubsub_subscription_policy_prohibit_public_access" {
   title       = "Pub/Sub subscription policies should prohibit public access"
   description = "Check if Pub/Sub subscription policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_pubsub_subscription"), "__ARN_COLUMN__", "name")
@@ -85,7 +85,7 @@ control "pubsub_subscription_policy_public_access" {
   })
 }
 
-control "pubsub_snapshot_policy_public_access" {
+control "pubsub_snapshot_policy_prohibit_public_access" {
   title       = "Pub/Sub snapshot policies should prohibit public access"
   description = "Check if Pub/Sub snapshot policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_pubsub_snapshot"), "__ARN_COLUMN__", "name")
@@ -95,7 +95,7 @@ control "pubsub_snapshot_policy_public_access" {
   })
 }
 
-control "kms_key_policy_public_access" {
+control "kms_key_policy_prohibit_public_access" {
   title       = "KMS key policies should prohibit public access"
   description = "Check if Cloud KMS key policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_kms_key"), "__ARN_COLUMN__", "self_link")
@@ -107,7 +107,7 @@ control "kms_key_policy_public_access" {
 
 
 
-control "cloud_run_service_policy_public_access" {
+control "cloud_run_service_policy_prohibit_public_access" {
   title       = "Cloud Run service policies should prohibit public access"
   description = "Check if Cloud Run service IAM policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_cloud_run_service"), "__ARN_COLUMN__", "self_link")
@@ -117,9 +117,7 @@ control "cloud_run_service_policy_public_access" {
   })
 }
 
-
-
-control "bigquery_dataset_policy_public_access" {
+control "bigquery_dataset_policy_prohibit_public_access" {
   title       = "BigQuery dataset policies should prohibit public access"
   description = "Check if BigQuery dataset access settings allow public access through allUsers or allAuthenticatedUsers."
 
@@ -158,7 +156,7 @@ control "bigquery_dataset_policy_public_access" {
   })
 }
 
-control "compute_image_policy_public_access" {
+control "compute_image_policy_prohibit_public_access" {
   title       = "Compute image policies should prohibit public access"
   description = "Check if Compute image IAM policies allow public access through allUsers or allAuthenticatedUsers."
   sql         = replace(replace(local.iam_policy_public_sql, "__TABLE_NAME__", "gcp_compute_image"), "__ARN_COLUMN__", "name")
