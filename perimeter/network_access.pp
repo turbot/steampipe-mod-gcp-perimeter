@@ -28,8 +28,8 @@ benchmark "firewall_access" {
 }
 
 control "vpc_firewall_restrict_ingress_tcp_udp_all" {
-  title       = "VPC firewall rules should restrict ingress TCP and UDP access from 0.0.0.0/0"
-  description = "This control checks if any firewall rules allow inbound TCP or UDP access from 0.0.0.0/0."
+  title       = "VPC firewall rules should restrict ingress TCP and UDP access from 0.0.0.0/0 and ::/0"
+  description = "This control checks if any firewall rules allow inbound TCP or UDP access from 0.0.0.0/0 or ::/0."
 
   sql = <<-EOQ
     with firewall_tcp_udp as (
@@ -44,7 +44,10 @@ control "vpc_firewall_restrict_ingress_tcp_udp_all" {
         jsonb_array_elements(allowed) as a
       where
         direction = 'INGRESS'
-        and source_ranges @> '["0.0.0.0/0"]'
+        and (
+          source_ranges @> '["0.0.0.0/0"]'
+          or source_ranges @> '["::/0"]'
+        )
         and (
           a ->> 'protocol' in ('tcp', 'udp', 'all')
         )
@@ -56,8 +59,8 @@ control "vpc_firewall_restrict_ingress_tcp_udp_all" {
         else 'alarm'
       end as status,
       case
-        when p.self_link is null then f.title || ' does not allow TCP/UDP access from 0.0.0.0/0.'
-        else f.title || ' allows TCP/UDP access from 0.0.0.0/0.'
+        when p.self_link is null then f.title || ' does not allow TCP/UDP access from 0.0.0.0/0 or ::/0.'
+        else f.title || ' allows TCP/UDP access from 0.0.0.0/0 or ::/0.'
       end as reason
       ${local.tag_dimensions_sql}
       ${local.common_dimensions_sql}
