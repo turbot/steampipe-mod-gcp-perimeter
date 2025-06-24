@@ -10,7 +10,7 @@ benchmark "iam_policy_public_access" {
     control.pubsub_snapshot_policy_prohibit_public_access,
     control.pubsub_subscription_policy_prohibit_public_access,
     control.pubsub_topic_policy_prohibit_public_access,
-    control.storage_bucket_policy_prohibit_public_access,
+    control.storage_bucket_policy_prohibit_public_access
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {

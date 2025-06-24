@@ -28,29 +28,24 @@ benchmark "iam_policy_shared_access" {
   description   = "IAM policies should be carefully managed to prevent unintended sharing of resources with untrusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access.md")
   children = [
-    # Identity & Access
-    control.iam_service_account_policy_shared_with_trusted_principals,
-    control.billing_account_policy_shared_with_trusted_principals,
-    # Storage & Databases
-    control.storage_bucket_policy_shared_with_trusted_principals,
     control.bigtable_instance_policy_shared_with_trusted_principals,
-    # Compute & Serverless
-    control.compute_instance_policy_shared_with_trusted_principals,
+    control.billing_account_policy_shared_with_trusted_principals,
+    control.cloud_function_policy_shared_with_trusted_principals,
+    control.cloud_run_job_policy_shared_with_trusted_principals,
+    control.cloud_run_service_policy_shared_with_trusted_principals,
     control.compute_disk_policy_shared_with_trusted_principals,
     control.compute_image_policy_shared_with_trusted_principals,
+    control.compute_instance_policy_shared_with_trusted_principals,
     control.compute_node_group_policy_shared_with_trusted_principals,
     control.compute_node_template_policy_shared_with_trusted_principals,
     control.compute_resource_policy_shared_with_trusted_principals,
     control.compute_subnetwork_policy_shared_with_trusted_principals,
-    control.cloud_function_policy_shared_with_trusted_principals,
-    control.cloud_run_service_policy_shared_with_trusted_principals,
-    control.cloud_run_job_policy_shared_with_trusted_principals,
-    # Messaging & Integration
-    control.pubsub_topic_policy_shared_with_trusted_principals,
-    control.pubsub_subscription_policy_shared_with_trusted_principals,
-    # Security & Encryption
+    control.iam_service_account_policy_shared_with_trusted_principals,
     control.kms_key_policy_shared_with_trusted_principals,
-    control.kms_key_ring_policy_shared_with_trusted_principals
+    control.kms_key_ring_policy_shared_with_trusted_principals,
+    control.pubsub_subscription_policy_shared_with_trusted_principals,
+    control.pubsub_topic_policy_shared_with_trusted_principals,
+    control.storage_bucket_policy_shared_with_trusted_principals
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {

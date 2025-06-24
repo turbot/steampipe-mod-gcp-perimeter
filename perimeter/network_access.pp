@@ -19,7 +19,7 @@ benchmark "firewall_access" {
   documentation = file("./perimeter/docs/firewall_access.md")
   children = [
     control.vpc_firewall_restrict_ingress_common_ports,
-    control.vpc_firewall_restrict_ingress_tcp_udp_all,
+    control.vpc_firewall_restrict_ingress_tcp_udp_all
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -169,10 +169,10 @@ benchmark "public_ips" {
   description   = "Resources should not have public IP addresses, as these can expose them to the internet."
   documentation = file("./perimeter/docs/public_ips.md")
   children = [
-    control.cloudfunction_function_publicly_accessible,
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
-    control.gke_cluster_not_publicly_accessible,
+    control.cloudfunction_function_publicly_accessible,
+    control.gke_cluster_not_publicly_accessible
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
