@@ -172,7 +172,6 @@ benchmark "public_ips" {
     control.cloudfunction_function_publicly_accessible,
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
-    control.compute_instance_not_publicly_accessible,
     control.gke_cluster_not_publicly_accessible,
   ]
 
@@ -217,14 +216,12 @@ control "cloud_run_not_publicly_accessible" {
     select
       name as resource,
       case
-        when template -> 'spec' -> 'vpcAccess' is not null
-          and ingress = 'INGRESS_TRAFFIC_INTERNAL_ONLY' then 'ok'
-        else 'alarm'
+        when ingress = 'INGRESS_TRAFFIC_ALL' then 'alarm'
+        else 'ok'
       end as status,
       case
-        when template -> 'spec' -> 'vpcAccess' is not null
-          and ingress = 'INGRESS_TRAFFIC_INTERNAL_ONLY' then title || ' not publicly accessible.'
-        else title || ' publicly accessible.'
+        when ingress = 'INGRESS_TRAFFIC_ALL' then title || ' publicly accessible.'
+        else title || ' not publicly accessible.'
       end as reason
       ${local.tag_dimensions_sql}
       ${local.common_dimensions_sql}
@@ -263,31 +260,7 @@ control "cloud_sql_not_publicly_accessible" {
   })
 }
 
-control "compute_instance_not_publicly_accessible" {
-  title       = "Compute instances should not have a public IP address"
-  description = "This control checks whether Compute Engine instances have public access enabled."
 
-  sql = <<-EOQ
-    select
-      self_link as resource,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_interfaces[0] -> 'accessConfigs' is not null then title || ' has public access enabled.'
-        else title || ' does not have public access enabled.'
-      end as reason
-      ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
-    from
-      gcp_compute_instance;
-  EOQ
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    service = "GCP/Compute"
-  })
-}
 
 control "gke_cluster_not_publicly_accessible" {
   title       = "GKE clusters should not have a public IP address"
@@ -297,13 +270,11 @@ control "gke_cluster_not_publicly_accessible" {
     select
       self_link as resource,
       case
-        when node_config -> 'metadata' ->> 'disable-legacy-endpoints' = 'true'
-          and private_cluster_config ->> 'enablePrivateNodes' = 'true' then 'ok'
+        when private_cluster_config ->> 'enablePrivateNodes' = 'true' or network_config ->> 'DefaultEnablePrivateNodes' = 'true' then 'ok'
         else 'alarm'
       end as status,
       case
-        when node_config -> 'metadata' ->> 'disable-legacy-endpoints' = 'true'
-          and private_cluster_config ->> 'enablePrivateNodes' = 'true' then title || ' nodes do not have public access.'
+        when private_cluster_config ->> 'enablePrivateNodes' = 'true' or network_config ->> 'DefaultEnablePrivateNodes' = 'true' then title || ' nodes do not have public access.'
         else title || ' nodes have public access.'
       end as reason
       ${local.tag_dimensions_sql}
