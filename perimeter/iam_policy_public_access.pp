@@ -105,8 +105,6 @@ control "kms_key_policy_prohibit_public_access" {
   })
 }
 
-
-
 control "cloud_run_service_policy_prohibit_public_access" {
   title       = "Cloud Run service policy should prohibit public access"
   description = "This control checks whether Cloud Run service IAM policy allows public access through allUsers or allAuthenticatedUsers."

@@ -28,15 +28,15 @@ benchmark "iam_policy_shared_access" {
   description   = "IAM policies should be carefully managed to prevent unintended sharing of resources with untrusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access.md")
   children = [
+    benchmark.iam_policy_shared_access_bigtable,
+    benchmark.iam_policy_shared_access_billing,
+    benchmark.iam_policy_shared_access_cloud_functions,
+    benchmark.iam_policy_shared_access_cloud_run,
     benchmark.iam_policy_shared_access_compute,
-    benchmark.iam_policy_shared_access_storage,
     benchmark.iam_policy_shared_access_iam,
     benchmark.iam_policy_shared_access_kms,
     benchmark.iam_policy_shared_access_pubsub,
-    benchmark.iam_policy_shared_access_cloud_run,
-    benchmark.iam_policy_shared_access_cloud_functions,
-    benchmark.iam_policy_shared_access_bigtable,
-    benchmark.iam_policy_shared_access_billing
+    benchmark.iam_policy_shared_access_storage
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -49,34 +49,34 @@ benchmark "iam_policy_shared_access_compute" {
   description   = "Ensure Compute Engine resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_compute.md")
   children = [
-    control.compute_disk_policy_shared_with_trusted_users,
-    control.compute_disk_policy_shared_with_trusted_groups,
     control.compute_disk_policy_shared_with_trusted_domains,
+    control.compute_disk_policy_shared_with_trusted_groups,
     control.compute_disk_policy_shared_with_trusted_service_accounts,
-    control.compute_image_policy_shared_with_trusted_users,
-    control.compute_image_policy_shared_with_trusted_groups,
+    control.compute_disk_policy_shared_with_trusted_users,
     control.compute_image_policy_shared_with_trusted_domains,
+    control.compute_image_policy_shared_with_trusted_groups,
     control.compute_image_policy_shared_with_trusted_service_accounts,
-    control.compute_instance_policy_shared_with_trusted_users,
-    control.compute_instance_policy_shared_with_trusted_groups,
+    control.compute_image_policy_shared_with_trusted_users,
     control.compute_instance_policy_shared_with_trusted_domains,
+    control.compute_instance_policy_shared_with_trusted_groups,
     control.compute_instance_policy_shared_with_trusted_service_accounts,
-    control.compute_node_group_policy_shared_with_trusted_users,
-    control.compute_node_group_policy_shared_with_trusted_groups,
+    control.compute_instance_policy_shared_with_trusted_users,
     control.compute_node_group_policy_shared_with_trusted_domains,
+    control.compute_node_group_policy_shared_with_trusted_groups,
     control.compute_node_group_policy_shared_with_trusted_service_accounts,
-    control.compute_node_template_policy_shared_with_trusted_users,
-    control.compute_node_template_policy_shared_with_trusted_groups,
+    control.compute_node_group_policy_shared_with_trusted_users,
     control.compute_node_template_policy_shared_with_trusted_domains,
+    control.compute_node_template_policy_shared_with_trusted_groups,
     control.compute_node_template_policy_shared_with_trusted_service_accounts,
-    control.compute_resource_policy_shared_with_trusted_users,
-    control.compute_resource_policy_shared_with_trusted_groups,
+    control.compute_node_template_policy_shared_with_trusted_users,
     control.compute_resource_policy_shared_with_trusted_domains,
+    control.compute_resource_policy_shared_with_trusted_groups,
     control.compute_resource_policy_shared_with_trusted_service_accounts,
-    control.compute_subnetwork_policy_shared_with_trusted_users,
-    control.compute_subnetwork_policy_shared_with_trusted_groups,
+    control.compute_resource_policy_shared_with_trusted_users,
     control.compute_subnetwork_policy_shared_with_trusted_domains,
-    control.compute_subnetwork_policy_shared_with_trusted_service_accounts
+    control.compute_subnetwork_policy_shared_with_trusted_groups,
+    control.compute_subnetwork_policy_shared_with_trusted_service_accounts,
+    control.compute_subnetwork_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -90,10 +90,10 @@ benchmark "iam_policy_shared_access_storage" {
   description   = "Ensure Cloud Storage resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_storage.md")
   children = [
-    control.storage_bucket_policy_shared_with_trusted_users,
-    control.storage_bucket_policy_shared_with_trusted_groups,
     control.storage_bucket_policy_shared_with_trusted_domains,
-    control.storage_bucket_policy_shared_with_trusted_service_accounts
+    control.storage_bucket_policy_shared_with_trusted_groups,
+    control.storage_bucket_policy_shared_with_trusted_service_accounts,
+    control.storage_bucket_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -107,10 +107,10 @@ benchmark "iam_policy_shared_access_iam" {
   description   = "Ensure IAM service accounts have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_iam.md")
   children = [
-    control.iam_service_account_policy_shared_with_trusted_users,
-    control.iam_service_account_policy_shared_with_trusted_groups,
     control.iam_service_account_policy_shared_with_trusted_domains,
-    control.iam_service_account_policy_shared_with_trusted_service_accounts
+    control.iam_service_account_policy_shared_with_trusted_groups,
+    control.iam_service_account_policy_shared_with_trusted_service_accounts,
+    control.iam_service_account_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -124,14 +124,14 @@ benchmark "iam_policy_shared_access_kms" {
   description   = "Ensure Cloud KMS resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_kms.md")
   children = [
-    control.kms_key_policy_shared_with_trusted_users,
-    control.kms_key_policy_shared_with_trusted_groups,
     control.kms_key_policy_shared_with_trusted_domains,
+    control.kms_key_policy_shared_with_trusted_groups,
     control.kms_key_policy_shared_with_trusted_service_accounts,
-    control.kms_key_ring_policy_shared_with_trusted_users,
-    control.kms_key_ring_policy_shared_with_trusted_groups,
+    control.kms_key_policy_shared_with_trusted_users,
     control.kms_key_ring_policy_shared_with_trusted_domains,
-    control.kms_key_ring_policy_shared_with_trusted_service_accounts
+    control.kms_key_ring_policy_shared_with_trusted_groups,
+    control.kms_key_ring_policy_shared_with_trusted_service_accounts,
+    control.kms_key_ring_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -145,14 +145,14 @@ benchmark "iam_policy_shared_access_pubsub" {
   description   = "Ensure Pub/Sub resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_pubsub.md")
   children = [
-    control.pubsub_subscription_policy_shared_with_trusted_users,
-    control.pubsub_subscription_policy_shared_with_trusted_groups,
     control.pubsub_subscription_policy_shared_with_trusted_domains,
+    control.pubsub_subscription_policy_shared_with_trusted_groups,
     control.pubsub_subscription_policy_shared_with_trusted_service_accounts,
-    control.pubsub_topic_policy_shared_with_trusted_users,
-    control.pubsub_topic_policy_shared_with_trusted_groups,
+    control.pubsub_subscription_policy_shared_with_trusted_users,
     control.pubsub_topic_policy_shared_with_trusted_domains,
-    control.pubsub_topic_policy_shared_with_trusted_service_accounts
+    control.pubsub_topic_policy_shared_with_trusted_groups,
+    control.pubsub_topic_policy_shared_with_trusted_service_accounts,
+    control.pubsub_topic_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -166,14 +166,14 @@ benchmark "iam_policy_shared_access_cloud_run" {
   description   = "Ensure Cloud Run resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_cloud_run.md")
   children = [
-    control.cloud_run_job_policy_shared_with_trusted_users,
-    control.cloud_run_job_policy_shared_with_trusted_groups,
     control.cloud_run_job_policy_shared_with_trusted_domains,
+    control.cloud_run_job_policy_shared_with_trusted_groups,
     control.cloud_run_job_policy_shared_with_trusted_service_accounts,
-    control.cloud_run_service_policy_shared_with_trusted_users,
-    control.cloud_run_service_policy_shared_with_trusted_groups,
+    control.cloud_run_job_policy_shared_with_trusted_users,
     control.cloud_run_service_policy_shared_with_trusted_domains,
-    control.cloud_run_service_policy_shared_with_trusted_service_accounts
+    control.cloud_run_service_policy_shared_with_trusted_groups,
+    control.cloud_run_service_policy_shared_with_trusted_service_accounts,
+    control.cloud_run_service_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -187,10 +187,10 @@ benchmark "iam_policy_shared_access_cloud_functions" {
   description   = "Ensure Cloud Functions resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_cloud_functions.md")
   children = [
-    control.cloud_function_policy_shared_with_trusted_users,
-    control.cloud_function_policy_shared_with_trusted_groups,
     control.cloud_function_policy_shared_with_trusted_domains,
-    control.cloud_function_policy_shared_with_trusted_service_accounts
+    control.cloud_function_policy_shared_with_trusted_groups,
+    control.cloud_function_policy_shared_with_trusted_service_accounts,
+    control.cloud_function_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -204,10 +204,10 @@ benchmark "iam_policy_shared_access_bigtable" {
   description   = "Ensure Bigtable resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_bigtable.md")
   children = [
-    control.bigtable_instance_policy_shared_with_trusted_users,
-    control.bigtable_instance_policy_shared_with_trusted_groups,
     control.bigtable_instance_policy_shared_with_trusted_domains,
-    control.bigtable_instance_policy_shared_with_trusted_service_accounts
+    control.bigtable_instance_policy_shared_with_trusted_groups,
+    control.bigtable_instance_policy_shared_with_trusted_service_accounts,
+    control.bigtable_instance_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -221,10 +221,10 @@ benchmark "iam_policy_shared_access_billing" {
   description   = "Ensure billing resources have IAM policies that only grant access to trusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access_billing.md")
   children = [
-    control.billing_account_policy_shared_with_trusted_users,
-    control.billing_account_policy_shared_with_trusted_groups,
     control.billing_account_policy_shared_with_trusted_domains,
-    control.billing_account_policy_shared_with_trusted_service_accounts
+    control.billing_account_policy_shared_with_trusted_groups,
+    control.billing_account_policy_shared_with_trusted_service_accounts,
+    control.billing_account_policy_shared_with_trusted_users
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
