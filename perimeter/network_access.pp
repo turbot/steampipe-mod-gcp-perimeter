@@ -80,7 +80,8 @@ control "vpc_firewall_restrict_ingress_common_ports" {
         distinct self_link
       from
         gcp_compute_firewall,
-        jsonb_array_elements(allowed) as a
+        jsonb_array_elements(allowed) as a,
+        jsonb_array_elements_text(a -> 'ports') as port
       where
         direction = 'INGRESS'
         and (
@@ -90,27 +91,125 @@ control "vpc_firewall_restrict_ingress_common_ports" {
         and (
           a ->> 'IPProtocol' = 'all'
           or (
-            (
-              a -> 'ports' @> '["22"]'
-              or a -> 'ports' @> '["3389"]'
-              or a -> 'ports' @> '["3306"]'
-              or a -> 'ports' @> '["5432"]'
-              or a -> 'ports' @> '["27017"]'
-              or a -> 'ports' @> '["1433"]'
-              or a -> 'ports' @> '["20"]'
-              or a -> 'ports' @> '["21"]'
-              or a -> 'ports' @> '["23"]'
-              or a -> 'ports' @> '["25"]'
-              or a -> 'ports' @> '["445"]'
-              or a -> 'ports' @> '["110"]'
-              or a -> 'ports' @> '["135"]'
-              or a -> 'ports' @> '["143"]'
-              or a -> 'ports' @> '["1434"]'
-              or a -> 'ports' @> '["5500"]'
-              or a -> 'ports' @> '["5601"]'
-              or a -> 'ports' @> '["8080"]'
-              or a -> 'ports' @> '["9200"]'
-              or a -> 'ports' @> '["9300"]'
+            port = '22'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 22
+              and split_part(port, '-', 2) :: integer >= 22
+            )
+            or port = '3389'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 3389
+              and split_part(port, '-', 2) :: integer >= 3389
+            )
+            or port = '3306'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 3306
+              and split_part(port, '-', 2) :: integer >= 3306
+            )
+            or port = '5432'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 5432
+              and split_part(port, '-', 2) :: integer >= 5432
+            )
+            or port = '27017'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 27017
+              and split_part(port, '-', 2) :: integer >= 27017
+            )
+            or port = '1433'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 1433
+              and split_part(port, '-', 2) :: integer >= 1433
+            )
+            or port = '20'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 20
+              and split_part(port, '-', 2) :: integer >= 20
+            )
+            or port = '21'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 21
+              and split_part(port, '-', 2) :: integer >= 21
+            )
+            or port = '23'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 23
+              and split_part(port, '-', 2) :: integer >= 23
+            )
+            or port = '25'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 25
+              and split_part(port, '-', 2) :: integer >= 25
+            )
+            or port = '445'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 445
+              and split_part(port, '-', 2) :: integer >= 445
+            )
+            or port = '110'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 110
+              and split_part(port, '-', 2) :: integer >= 110
+            )
+            or port = '135'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 135
+              and split_part(port, '-', 2) :: integer >= 135
+            )
+            or port = '143'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 143
+              and split_part(port, '-', 2) :: integer >= 143
+            )
+            or port = '1434'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 1434
+              and split_part(port, '-', 2) :: integer >= 1434
+            )
+            or port = '5500'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 5500
+              and split_part(port, '-', 2) :: integer >= 5500
+            )
+            or port = '5601'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 5601
+              and split_part(port, '-', 2) :: integer >= 5601
+            )
+            or port = '8080'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 8080
+              and split_part(port, '-', 2) :: integer >= 8080
+            )
+            or port = '9200'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 9200
+              and split_part(port, '-', 2) :: integer >= 9200
+            )
+            or port = '9300'
+            or (
+              port like '%-%'
+              and split_part(port, '-', 1) :: integer <= 9300
+              and split_part(port, '-', 2) :: integer >= 9300
             )
           )
         )
