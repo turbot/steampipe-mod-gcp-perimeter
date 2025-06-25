@@ -171,7 +171,7 @@ benchmark "public_ips" {
   children = [
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
-    control.cloudfunction_function_publicly_accessible,
+    control.cloudfunction_function_not_publicly_accessible,
     control.gke_cluster_not_publicly_accessible
   ]
 
@@ -180,9 +180,9 @@ benchmark "public_ips" {
   })
 }
 
-control "cloudfunction_function_publicly_accessible" {
-  title       = "Cloud Functions should have a public IP address"
-  description = "This control checks whether Cloud Functions have public access enabled."
+control "cloudfunction_function_not_publicly_accessible" {
+  title       = "Cloud Functions should not be publicly accessible"
+  description = "This control checks whether Cloud Functions have public access disabled and are configured to only allow internal traffic."
 
   sql = <<-EOQ
     select

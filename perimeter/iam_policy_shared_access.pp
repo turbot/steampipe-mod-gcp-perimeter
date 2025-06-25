@@ -125,8 +125,8 @@ locals {
 }
 
 control "iam_service_account_policy_shared_with_trusted_principals" {
-  title       = "IAM Service account IAM policies should only grant access to trusted principals"
-  description = "Check if service account IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  title       = "IAM service account IAM policies should only grant access to trusted principals"
+  description = "This control checks whether service account IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_service_account"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -156,7 +156,7 @@ control "iam_service_account_policy_shared_with_trusted_principals" {
 
 control "storage_bucket_policy_shared_with_trusted_principals" {
   title       = "Storage bucket IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud Storage bucket IAM policies and ACLs grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud Storage bucket IAM policies and ACLs grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_storage_bucket"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -186,7 +186,7 @@ control "storage_bucket_policy_shared_with_trusted_principals" {
 
 control "bigtable_instance_policy_shared_with_trusted_principals" {
   title       = "Bigtable instance IAM policies should only grant access to trusted principals"
-  description = "Check if Bigtable instance IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Bigtable instance IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_bigtable_instance"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -216,7 +216,7 @@ control "bigtable_instance_policy_shared_with_trusted_principals" {
 
 control "compute_instance_policy_shared_with_trusted_principals" {
   title       = "Compute instance IAM policies should only grant access to trusted principals"
-  description = "Check if Compute Engine instance IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute Engine instance IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_instance"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -246,7 +246,7 @@ control "compute_instance_policy_shared_with_trusted_principals" {
 
 control "pubsub_subscription_policy_shared_with_trusted_principals" {
   title       = "Pub/Sub subscription IAM policies should only grant access to trusted principals"
-  description = "Check if Pub/Sub subscription IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Pub/Sub subscription IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_pubsub_subscription"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -276,7 +276,7 @@ control "pubsub_subscription_policy_shared_with_trusted_principals" {
 
 control "kms_key_policy_shared_with_trusted_principals" {
   title       = "KMS key IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud KMS key IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud KMS key IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_kms_key"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -306,7 +306,7 @@ control "kms_key_policy_shared_with_trusted_principals" {
 
 control "pubsub_topic_policy_shared_with_trusted_principals" {
   title       = "Pub/Sub topic IAM policies should only grant access to trusted principals"
-  description = "Check if Pub/Sub topic IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Pub/Sub topic IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_pubsub_topic"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -336,7 +336,7 @@ control "pubsub_topic_policy_shared_with_trusted_principals" {
 
 control "cloud_run_service_policy_shared_with_trusted_principals" {
   title       = "Cloud Run service IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud Run service IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud Run service IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_cloud_run_service"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -366,7 +366,7 @@ control "cloud_run_service_policy_shared_with_trusted_principals" {
 
 control "cloud_function_policy_shared_with_trusted_principals" {
   title       = "Cloud Function IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud Function IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud Function IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_cloudfunctions_function"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -396,7 +396,7 @@ control "cloud_function_policy_shared_with_trusted_principals" {
 
 control "billing_account_policy_shared_with_trusted_principals" {
   title       = "Billing account IAM policies should only grant access to trusted principals"
-  description = "Check if billing account IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether billing account IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_billing_account"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -426,7 +426,7 @@ control "billing_account_policy_shared_with_trusted_principals" {
 
 control "compute_disk_policy_shared_with_trusted_principals" {
   title       = "Compute disk IAM policies should only grant access to trusted principals"
-  description = "Check if Compute disk IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute disk IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_disk"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -456,7 +456,7 @@ control "compute_disk_policy_shared_with_trusted_principals" {
 
 control "compute_image_policy_shared_with_trusted_principals" {
   title       = "Compute image IAM policies should only grant access to trusted principals"
-  description = "Check if Compute image IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute image IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_image"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -486,7 +486,7 @@ control "compute_image_policy_shared_with_trusted_principals" {
 
 control "compute_node_group_policy_shared_with_trusted_principals" {
   title       = "Compute node group IAM policies should only grant access to trusted principals"
-  description = "Check if Compute node group IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute node group IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_node_group"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -516,7 +516,7 @@ control "compute_node_group_policy_shared_with_trusted_principals" {
 
 control "compute_node_template_policy_shared_with_trusted_principals" {
   title       = "Compute node template IAM policies should only grant access to trusted principals"
-  description = "Check if Compute node template IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute node template IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_node_template"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -546,7 +546,7 @@ control "compute_node_template_policy_shared_with_trusted_principals" {
 
 control "compute_resource_policy_shared_with_trusted_principals" {
   title       = "Compute resource IAM policies should only grant access to trusted principals"
-  description = "Check if Compute resource IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute resource IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_resource_policy"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -576,7 +576,7 @@ control "compute_resource_policy_shared_with_trusted_principals" {
 
 control "compute_subnetwork_policy_shared_with_trusted_principals" {
   title       = "Compute subnetwork IAM policies should only grant access to trusted principals"
-  description = "Check if Compute subnetwork IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Compute subnetwork IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_compute_subnetwork"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -606,7 +606,7 @@ control "compute_subnetwork_policy_shared_with_trusted_principals" {
 
 control "cloud_run_job_policy_shared_with_trusted_principals" {
   title       = "Cloud Run job IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud Run job IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud Run job IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_cloud_run_job"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
@@ -636,7 +636,7 @@ control "cloud_run_job_policy_shared_with_trusted_principals" {
 
 control "kms_key_ring_policy_shared_with_trusted_principals" {
   title       = "KMS key ring IAM policies should only grant access to trusted principals"
-  description = "Check if Cloud KMS key ring IAM policies grant access to untrusted users, groups, service accounts, or domains."
+  description = "This control checks whether Cloud KMS key ring IAM policies grant access to untrusted users, groups, service accounts, or domains."
   sql         = replace(replace(local.iam_policy_shared_sql, "__TABLE_NAME__", "gcp_kms_key_ring"), "__RESOURCE_COLUMN__", "name")
 
   param "trusted_users" {
