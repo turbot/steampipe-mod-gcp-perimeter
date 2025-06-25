@@ -4,7 +4,7 @@ benchmark "network_access" {
   documentation = file("./perimeter/docs/network_access.md")
   children = [
     benchmark.firewall_access,
-    benchmark.public_ips,
+    benchmark.public_network_access,
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -236,10 +236,10 @@ control "vpc_firewall_restrict_ingress_common_ports" {
   })
 }
 
-benchmark "public_ips" {
-  title         = "Public IPs"
-  description   = "Resources should not have public IP addresses, as these can expose them to the internet."
-  documentation = file("./perimeter/docs/public_ips.md")
+benchmark "public_network_access" {
+  title         = "Public Network Access"
+  description   = "Resources should not be publicly accessible through network configurations, as this can expose them to the internet."
+  documentation = file("./perimeter/docs/public_network_access.md")
   children = [
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
@@ -331,8 +331,6 @@ control "cloud_sql_not_publicly_accessible" {
     service = "GCP/SQL"
   })
 }
-
-
 
 control "gke_cluster_not_publicly_accessible" {
   title       = "GKE clusters should not have a public IP address"
