@@ -126,7 +126,7 @@ control "vpc_firewall_restrict_ingress_common_ports" {
         else f.title || ' allows access to common ports from 0.0.0.0/0 or ::/0.'
       end as reason
       ${local.tag_dimensions_sql}
-       ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "f.")}
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "f.")}
     from
       gcp_compute_firewall as f
       left join firewall_common_ports as p on p.self_link = f.self_link;
