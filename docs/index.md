@@ -75,7 +75,7 @@ powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access
 Run a specific control:
 
 ```sh
-powerpipe control run gcp_perimeter.control.iam_policy_shared_service_account
+powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_with_trusted_domains
 ```
 
 Different output formats are also available, for more information please see
@@ -102,7 +102,7 @@ Or through environment variables:
 
 ```sh
 export PP_VAR_trusted_users='["user1@example.com", "user2@example.com"]'
-powerpipe control run gcp_perimeter.control.iam_policy_shared_service_account
+powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_with_trusted_users
 ```
 
 These are only some of the ways you can set variables. For a full list, please see [Passing Input Variables](https://powerpipe.io/docs/build/mod-variables#passing-input-variables).
@@ -128,7 +128,7 @@ Or through environment variables:
 
 ```sh
 export PP_VAR_common_dimensions='["project", "location"]'
-powerpipe control run gcp_perimeter.control.bigquery_dataset_policy_public_access
+powerpipe control run gcp_perimeter.control.bigquery_dataset_policy_prohibit_public_access
 ```
 
 ## Open Source & Contributing
