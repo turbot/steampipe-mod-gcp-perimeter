@@ -29,16 +29,12 @@ benchmark "firewall_access" {
 
 control "vpc_firewall_restrict_ingress_tcp_udp_all" {
   title       = "VPC firewall rules should restrict ingress TCP and UDP access from 0.0.0.0/0 and ::/0"
-  description = "This control checks if any firewall rules allow inbound TCP or UDP access from 0.0.0.0/0 or ::/0."
+  description = "This control checks whether firewall rules allow inbound TCP or UDP access from 0.0.0.0/0 or ::/0 to prevent unrestricted access to resources."
 
   sql = <<-EOQ
     with firewall_tcp_udp as (
       select
-        self_link,
-        title,
-        direction,
-        source_ranges,
-        a ->> 'protocol' as protocol
+        distinct self_link
       from
         gcp_compute_firewall,
         jsonb_array_elements(allowed) as a
@@ -49,7 +45,7 @@ control "vpc_firewall_restrict_ingress_tcp_udp_all" {
           or source_ranges @> '["::/0"]'
         )
         and (
-          a ->> 'protocol' in ('tcp', 'udp', 'all')
+          a ->> 'IPProtocol' in ('tcp', 'udp', 'all')
         )
     )
     select
@@ -63,7 +59,7 @@ control "vpc_firewall_restrict_ingress_tcp_udp_all" {
         else f.title || ' allows TCP/UDP access from 0.0.0.0/0 or ::/0.'
       end as reason
       ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
+      ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "f.")}
     from
       gcp_compute_firewall as f
       left join firewall_tcp_udp as p on p.self_link = f.self_link;
@@ -81,12 +77,7 @@ control "vpc_firewall_restrict_ingress_common_ports" {
   sql = <<-EOQ
     with firewall_common_ports as (
       select
-        self_link,
-        title,
-        direction,
-        source_ranges,
-        a -> 'ports' as ports,
-        a ->> 'protocol' as protocol
+        distinct self_link
       from
         gcp_compute_firewall,
         jsonb_array_elements(allowed) as a
@@ -97,45 +88,27 @@ control "vpc_firewall_restrict_ingress_common_ports" {
           or source_ranges @> '["::/0"]'
         )
         and (
-          a ->> 'protocol' = 'all'
+          a ->> 'IPProtocol' = 'all'
           or (
             (
-              -- SSH
               a -> 'ports' @> '["22"]'
-              -- RDP
               or a -> 'ports' @> '["3389"]'
-              -- MySQL
               or a -> 'ports' @> '["3306"]'
-              -- PostgreSQL
               or a -> 'ports' @> '["5432"]'
-              -- MongoDB
               or a -> 'ports' @> '["27017"]'
-              -- MSSQL
               or a -> 'ports' @> '["1433"]'
-              -- FTP
               or a -> 'ports' @> '["20"]'
               or a -> 'ports' @> '["21"]'
-              -- Telnet
               or a -> 'ports' @> '["23"]'
-              -- SMTP
               or a -> 'ports' @> '["25"]'
-              -- SMB
               or a -> 'ports' @> '["445"]'
-              -- POP3
               or a -> 'ports' @> '["110"]'
-              -- RPC
               or a -> 'ports' @> '["135"]'
-              -- IMAP
               or a -> 'ports' @> '["143"]'
-              -- SQL Server Browser
               or a -> 'ports' @> '["1434"]'
-              -- VNC
               or a -> 'ports' @> '["5500"]'
-              -- Kibana
               or a -> 'ports' @> '["5601"]'
-              -- HTTP Alt
               or a -> 'ports' @> '["8080"]'
-              -- Elasticsearch
               or a -> 'ports' @> '["9200"]'
               or a -> 'ports' @> '["9300"]'
             )
@@ -153,7 +126,7 @@ control "vpc_firewall_restrict_ingress_common_ports" {
         else f.title || ' allows access to common ports from 0.0.0.0/0 or ::/0.'
       end as reason
       ${local.tag_dimensions_sql}
-      ${local.common_dimensions_sql}
+       ${replace(local.common_dimensions_qualifier_sql, "__QUALIFIER__", "f.")}
     from
       gcp_compute_firewall as f
       left join firewall_common_ports as p on p.self_link = f.self_link;
