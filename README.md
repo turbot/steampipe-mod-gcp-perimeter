@@ -77,7 +77,7 @@ powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access
 Run a specific control:
 
 ```sh
-powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_with_trusted_domains
+powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_access
 ```
 
 Different output formats are also available, for more information please see
@@ -97,14 +97,17 @@ vi powerpipe.ppvars
 Alternatively you can pass variables on the command line:
 
 ```sh
-powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access --var='gcp_perimeter.trusted_users=["user1@example.com", "user2@example.com"]'
+powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access --var='gcp_perimeter.trusted_users=["user1@example.com", "user2@example.com"]' --var='gcp_perimeter.trusted_groups=["group1@example.com", "group2@example.com"]' --var='gcp_perimeter.trusted_domains=["domain1.com", "domain2.com"]' --var='gcp_perimeter.trusted_service_accounts=["service-account1@example.com", "service-account2@example.com"]'
 ```
 
 Or through environment variables:
 
 ```sh
 export PP_VAR_trusted_users='["user1@example.com", "user2@example.com"]'
-powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_with_trusted_users
+export PP_VAR_trusted_groups='["group1@example.com", "group2@example.com"]'
+export PP_VAR_trusted_domains='["domain1.com", "domain2.com"]'
+export PP_VAR_trusted_service_accounts='["service-account1@example.com", "service-account2@example.com"]'
+powerpipe control run gcp_perimeter.control.compute_disk_policy_shared_access
 ```
 
 These are only some of the ways you can set variables. For a full list, please see [Passing Input Variables](https://powerpipe.io/docs/build/mod-variables#passing-input-variables).
