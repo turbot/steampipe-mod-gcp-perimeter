@@ -4,7 +4,8 @@ Run security controls across all your Google Cloud Platform projects to look for
 
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_dashboard.png" width="50%" type="thumbnail"/>
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_network_access_dashboard.png" width="50%" type="thumbnail"/>
-<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_public_access_dashboard.png" width="50%" type="thumbnail"/>
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_iam_policy_public_access_dashboard.png" width="50%" type="thumbnail"/>
+<img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_iam_policy_shared_access_dashboard.png" width="50%" type="thumbnail"/>
 <img src="https://raw.githubusercontent.com/turbot/steampipe-mod-gcp-perimeter/main/docs/images/gcp_perimeter_network_access_console.png" width="50%" type="thumbnail"/>
 
 ## Documentation
