@@ -1,18 +1,15 @@
-# Example trusted GCP projects
-trusted_projects = [
-  "my-trusted-project-1",
-  "my-trusted-project-2"
-]
+# Dimensions
+common_dimensions = ["project", "location"]
+tag_dimensions    = []
 
-# Common dimensions to include in controls
-common_dimensions = [
-  "project",
-  "location"
-]
+# List of trusted users
+trusted_users = ["user1@example.com", "user2@example.com"]
 
-# Example tag dimensions to include (GCP labels)
-tag_dimensions = [
-  "environment",
-  "owner",
-  "cost_center"
-] 
+# List of trusted groups
+trusted_groups = ["admins@googlegroups.com", "developers@googlegroups.com"]
+
+# List of trusted service accounts
+trusted_service_accounts = ["app-sa@project-id.iam.gserviceaccount.com"]
+
+# List of trusted domains
+trusted_domains = ["trusted-company.com", "trusted-partner.com"]
