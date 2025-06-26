@@ -244,7 +244,8 @@ benchmark "public_network_access" {
     control.cloud_run_not_publicly_accessible,
     control.cloud_sql_not_publicly_accessible,
     control.cloudfunction_function_not_publicly_accessible,
-    control.gke_cluster_not_publicly_accessible
+    control.gke_cluster_master_authorized_networks_not_publicly_accessible,
+    control.gke_cluster_nodes_not_publicly_accessible
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
@@ -332,9 +333,9 @@ control "cloud_sql_not_publicly_accessible" {
   })
 }
 
-control "gke_cluster_not_publicly_accessible" {
-  title       = "GKE clusters should not be publicly accessible"
-  description = "This control checks whether GKE clusters have public access enabled."
+control "gke_cluster_nodes_not_publicly_accessible" {
+  title       = "GKE clusters nodes should not be publicly accessible"
+  description = "This control checks whether GKE cluster worker nodes have private IP addresses only. Worker nodes with public IP addresses can be directly accessed from the internet, exposing node-level vulnerabilities."
 
   sql = <<-EOQ
     select
@@ -356,4 +357,45 @@ control "gke_cluster_not_publicly_accessible" {
   tags = merge(local.gcp_perimeter_common_tags, {
     service = "GCP/GKE"
   })
-} 
+}
+
+control "gke_cluster_master_authorized_networks_not_publicly_accessible" {
+  title       = "GKE cluster master authorized networks should not allow access from 0.0.0.0/0"
+  description = "This control checks whether GKE cluster control plane (master) API server restricts access through master authorized networks. Clusters without authorized networks or those allowing 0.0.0.0/0 access expose the Kubernetes API server to the entire internet, potentially allowing unauthorized access to cluster."
+
+  sql = <<-EOQ
+    with master_networks as (
+      select
+        self_link,
+        title,
+        c ->> 'cidrBlock' as cidr_block
+      from
+        gcp_kubernetes_cluster,
+        jsonb_array_elements(master_authorized_networks_config -> 'cidrBlocks') as c
+      where
+        master_authorized_networks_config is not null
+        and master_authorized_networks_config ->> 'enabled' = 'true'
+    )
+    select
+      c.self_link as resource,
+      case
+        when master_authorized_networks_config is null then 'alarm'
+        when n.cidr_block = '0.0.0.0/0' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when master_authorized_networks_config is null then c.title || ' has no master authorized networks configuration.'
+        when n.cidr_block = '0.0.0.0/0' then c.title || ' allows access from 0.0.0.0/0.'
+        else c.title || ' has restricted master access.'
+      end as reason
+      ${local.tag_dimensions_sql}
+      ${local.common_dimensions_sql}
+    from
+      gcp_kubernetes_cluster as c
+      left join master_networks as n on n.self_link = c.self_link;
+  EOQ
+
+  tags = merge(local.gcp_perimeter_common_tags, {
+    service = "GCP/GKE"
+  })
+}
