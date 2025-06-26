@@ -281,7 +281,7 @@ control "cloudfunction_function_not_publicly_accessible" {
 }
 
 control "cloud_run_not_publicly_accessible" {
-  title       = "Cloud Run services should not have a public IP address"
+  title       = "Cloud Run services should not be publicly accessible"
   description = "This control checks whether Cloud Run services have public access enabled."
 
   sql = <<-EOQ
@@ -307,7 +307,7 @@ control "cloud_run_not_publicly_accessible" {
 }
 
 control "cloud_sql_not_publicly_accessible" {
-  title       = "Cloud SQL instances should not have a public IP address"
+  title       = "Cloud SQL instances should not be publicly accessible"
   description = "This control checks whether Cloud SQL instances have public access enabled."
 
   sql = <<-EOQ
@@ -333,7 +333,7 @@ control "cloud_sql_not_publicly_accessible" {
 }
 
 control "gke_cluster_not_publicly_accessible" {
-  title       = "GKE clusters should not have a public IP address"
+  title       = "GKE clusters should not be publicly accessible"
   description = "This control checks whether GKE clusters have public access enabled."
 
   sql = <<-EOQ
