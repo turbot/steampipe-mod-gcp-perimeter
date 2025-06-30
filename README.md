@@ -133,7 +133,7 @@ Or through environment variables:
 
 ```sh
 export PP_VAR_common_dimensions='["project", "location"]'
-powerpipe control run gcp_perimeter.bigquery_dataset_policy_prohibit_public_access
+powerpipe control run gcp_perimeter.control.bigquery_dataset_policy_prohibit_public_access
 ```
 
 ## Open Source & Contributing
