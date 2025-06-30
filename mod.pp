@@ -1,15 +1,17 @@
 mod "gcp_perimeter" {
-  # Meta properties
-  title         = "GCP Perimeter Security"
-  description   = "Create dashboards and controls to analyze the perimeter security of your GCP resources."
-  color         = "#EA4335"
+  # Hub metadata
+  title         = "GCP Perimeter"
+  description   = "Run security controls across all your Google Cloud Platform projects to look for resources that are publicly accessible, shared with untrusted entities, have insecure network configurations, and more using Powerpipe and Steampipe."
+  color         = "#ea4335"
   documentation = file("./docs/index.md")
   icon          = "/images/mods/turbot/gcp-perimeter.svg"
-  categories    = ["gcp", "security", "perimeter"]
+  categories    = ["gcp", "perimeter", "public cloud", "security"]
+  database      = var.database
 
   opengraph {
-    title       = "Powerpipe Mod for GCP Perimeter Security"
-    description = "Create dashboards and controls to analyze the perimeter security of your GCP resources."
+    title       = "Powerpipe Mod for GCP Perimeter"
+    description = "Run security controls across all your Google Cloud Platform projects to look for resources that are publicly accessible, shared with untrusted entities, have insecure network configurations, and more using Powerpipe and Steampipe."
+    image       = "/images/mods/turbot/gcp-perimeter-social-graphic.png"
   }
 
   requires {
