@@ -1,6 +1,7 @@
-## v0.1 [2025-05-23]
+## v0.1.0 [2025-06-30]
 
 _What's new?_
 
-- Added: Network Access benchmark (`steampipe check benchmark.network_access`)
-- Added: Public Access benchmark (`steampipe check benchmark.public_access`)
+- Added IAM Policy Public Access benchmark (`powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_public_access`)
+- Added IAM Policy Shared Access benchmark (`powerpipe benchmark run gcp_perimeter.benchmark.iam_policy_shared_access`)
+- Added Network Access benchmark (`powerpipe benchmark run gcp_perimeter.benchmark.network_access`) 
