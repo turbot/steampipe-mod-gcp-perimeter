@@ -28,154 +28,28 @@ benchmark "iam_policy_shared_access" {
   description   = "IAM policies should be carefully managed to prevent unintended sharing of resources with untrusted principals."
   documentation = file("./perimeter/docs/iam_policy_shared_access.md")
   children = [
-    benchmark.iam_policy_shared_access_bigtable,
-    benchmark.iam_policy_shared_access_billing,
-    benchmark.iam_policy_shared_access_cloud_functions,
-    benchmark.iam_policy_shared_access_cloud_run,
-    benchmark.iam_policy_shared_access_compute,
-    benchmark.iam_policy_shared_access_iam,
-    benchmark.iam_policy_shared_access_kms,
-    benchmark.iam_policy_shared_access_pubsub,
-    benchmark.iam_policy_shared_access_storage
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type = "Benchmark"
-  })
-}
-
-benchmark "iam_policy_shared_access_compute" {
-  title         = "Compute Engine IAM Policy Shared Access"
-  description   = "Ensure Compute Engine resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_compute.md")
-  children = [
+    control.bigtable_instance_policy_shared_access,
+    control.billing_account_policy_shared_access,
+    control.cloud_function_policy_shared_access,
+    control.cloud_run_job_policy_shared_access,
+    control.cloud_run_service_policy_shared_access,
     control.compute_disk_policy_shared_access,
     control.compute_image_policy_shared_access,
     control.compute_instance_policy_shared_access,
     control.compute_node_group_policy_shared_access,
     control.compute_node_template_policy_shared_access,
     control.compute_resource_policy_shared_access,
-    control.compute_subnetwork_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/Compute"
-  })
-}
-
-benchmark "iam_policy_shared_access_storage" {
-  title         = "Cloud Storage IAM Policy Shared Access"
-  description   = "Ensure Cloud Storage resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_storage.md")
-  children = [
+    control.compute_subnetwork_policy_shared_access,
+    control.iam_service_account_policy_shared_access,
+    control.kms_key_policy_shared_access,
+    control.kms_key_ring_policy_shared_access,
+    control.pubsub_subscription_policy_shared_access,
+    control.pubsub_topic_policy_shared_access,
     control.storage_bucket_policy_shared_access
   ]
 
   tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/Storage"
-  })
-}
-
-benchmark "iam_policy_shared_access_iam" {
-  title         = "IAM Service Account IAM Policy Shared Access"
-  description   = "Ensure IAM service accounts have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_iam.md")
-  children = [
-    control.iam_service_account_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/IAM"
-  })
-}
-
-benchmark "iam_policy_shared_access_kms" {
-  title         = "Cloud KMS IAM Policy Shared Access"
-  description   = "Ensure Cloud KMS resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_kms.md")
-  children = [
-    control.kms_key_policy_shared_access,
-    control.kms_key_ring_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/KMS"
-  })
-}
-
-benchmark "iam_policy_shared_access_pubsub" {
-  title         = "Pub/Sub IAM Policy Shared Access"
-  description   = "Ensure Pub/Sub resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_pubsub.md")
-  children = [
-    control.pubsub_subscription_policy_shared_access,
-    control.pubsub_topic_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/PubSub"
-  })
-}
-
-benchmark "iam_policy_shared_access_cloud_run" {
-  title         = "Cloud Run IAM Policy Shared Access"
-  description   = "Ensure Cloud Run resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_cloud_run.md")
-  children = [
-    control.cloud_run_job_policy_shared_access,
-    control.cloud_run_service_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/CloudRun"
-  })
-}
-
-benchmark "iam_policy_shared_access_cloud_functions" {
-  title         = "Cloud Functions IAM Policy Shared Access"
-  description   = "Ensure Cloud Functions resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_cloud_functions.md")
-  children = [
-    control.cloud_function_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/CloudFunctions"
-  })
-}
-
-benchmark "iam_policy_shared_access_bigtable" {
-  title         = "Bigtable IAM Policy Shared Access"
-  description   = "Ensure Bigtable resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_bigtable.md")
-  children = [
-    control.bigtable_instance_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/Bigtable"
-  })
-}
-
-benchmark "iam_policy_shared_access_billing" {
-  title         = "Billing IAM Policy Shared Access"
-  description   = "Ensure billing resources have IAM policies that only grant access to trusted principals."
-  documentation = file("./perimeter/docs/iam_policy_shared_access_billing.md")
-  children = [
-    control.billing_account_policy_shared_access
-  ]
-
-  tags = merge(local.gcp_perimeter_common_tags, {
-    type    = "Benchmark"
-    service = "GCP/Billing"
+    type = "Benchmark"
   })
 }
 
@@ -190,7 +64,7 @@ locals {
         -- Count project-level members
         count(*) filter (where member like 'project%') as project_members,
         -- Count trusted members (excluding project-level)
-        count(*) filter (where 
+        count(*) filter (where
           member not like 'project%' and (
             (member like 'user:%' and split_part(member, 'user:', 2) = any(($1)::text[]))
             or
@@ -202,7 +76,7 @@ locals {
           )
         ) as trusted_members,
         -- Collect untrusted members for alarm messages
-        array_agg(distinct member) filter (where 
+        array_agg(distinct member) filter (where
           member not like 'project%' and not (
           (member like 'user:%' and split_part(member, 'user:', 2) = any(($1)::text[]))
             or
@@ -796,4 +670,4 @@ control "pubsub_subscription_policy_shared_access" {
   tags = merge(local.gcp_perimeter_common_tags, {
     service = "GCP/PubSub"
   })
-} 
+}
